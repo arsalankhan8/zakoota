@@ -48,24 +48,25 @@ export default function CategoryForm({
         ) : null}
       </div>
 
-      <div className="flex items-center justify-center gap-4 pt-2">
+      <div className="flex flex-col items-center  gap-4 min-[470px]:flex-row min-[470px]:px-0 sm:items-start">
         <button
           type="button"
           onClick={onCancel}
-          className="min-w-[170px] rounded-2xl border border-slate-200 bg-white px-6 py-4 text-sm font-extrabold text-slate-600 hover:bg-slate-50"
           disabled={loading}
+          className="w-full min-[470px]:w-auto min-w-[170px] rounded-2xl border border-slate-200 bg-white px-6 py-4 text-sm font-extrabold text-slate-600 hover:bg-slate-50 disabled:opacity-60"
         >
           Cancel
         </button>
 
         <button
           type="submit"
-          className="min-w-[170px] rounded-2xl bg-orange-500 px-6 py-4 text-sm font-extrabold text-white shadow-[0_12px_30px_-14px_rgba(249,115,22,0.6)] hover:opacity-95 disabled:opacity-60"
           disabled={loading}
+          className="w-full min-[470px]:w-auto min-w-[170px] rounded-2xl bg-orange-500 px-6 py-4 text-sm font-extrabold text-white shadow-[0_12px_30px_-14px_rgba(249,115,22,0.6)] hover:opacity-95 disabled:opacity-60"
         >
           {loading ? "Saving..." : "Save Changes"}
         </button>
       </div>
+
     </form>
   );
 }

@@ -1,8 +1,14 @@
+// models/Item.js
 import mongoose from "mongoose";
 
 const itemSchema = new mongoose.Schema(
   {
-    category: { type: mongoose.Schema.Types.ObjectId, ref: "Category", required: true },
+    category: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Category",
+      required: false,
+      default: null,
+    },
     name: { type: String, required: true, trim: true },
     description: { type: String, default: "", trim: true },
     price: { type: Number, default: 0 },

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { api } from "../api/api";
 import { useNavigate } from "react-router-dom";
 
@@ -7,50 +7,54 @@ export default function Login() {
   const [username, setUsername] = useState("admin");
   const [password, setPassword] = useState("");
   const [err, setErr] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  // cooldown seconds left
+  const [cooldown, setCooldown] = useState(0);
+
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const t = setInterval(() => setCooldown((s) => s - 1), 1000);
+    return () => clearInterval(t);
+  }, [cooldown]);
 
   async function onSubmit(e) {
     e.preventDefault();
+    if (loading || cooldown > 0) return;
+
     setErr("");
+    setLoading(true);
 
     try {
       const res = await api.post("/auth/login", { username, password });
       localStorage.setItem("token", res.data.token);
       navigate("/admin");
     } catch (e2) {
-      setErr(e2?.response?.data?.message || "Login failed");
+      const status = e2?.response?.status;
+
+      // rate limited
+      if (status === 429) {
+        // If you set standardHeaders:true on backend,
+        // browser can read "Retry-After" sometimes, but not always exposed.
+        // So we do a safe default.
+        setCooldown(30);
+        setErr("Too many attempts. Please wait 30 seconds and try again.");
+      } else {
+        setErr(e2?.response?.data?.message || "Login failed");
+      }
+    } finally {
+      setLoading(false);
     }
   }
 
+  const disabled = loading || cooldown > 0;
+
   return (
     <div className="relative min-h-screen grid place-items-center p-6 overflow-hidden">
-      {/* Gradient background */}
-      <div className="absolute inset-0 bg-gradient-to-b from-orange-50 via-white to-slate-50" />
+      {/* ...your background stuff... */}
 
-      {/* Grid overlay */}
-      <div
-        className="absolute inset-0 opacity-[0.5]"
-        style={{
-          backgroundImage:
-            "linear-gradient(to right, rgba(15,23,42,0.08) 1px, transparent 1px), linear-gradient(to bottom, rgba(15,23,42,0.08) 1px, transparent 1px)",
-          backgroundSize: "48px 48px",
-        }}
-      />
-
-      {/* Soft glow accents */}
-      <div className="absolute -top-40 -left-40 w-[500px] h-[500px] rounded-full bg-orange-200/30 blur-3xl" />
-      <div className="absolute -bottom-40 -right-40 w-[500px] h-[500px] rounded-full bg-slate-200/40 blur-3xl" />
-
-      {/* Login card (unchanged) */}
       <div className="relative w-full max-w-md bg-white rounded-3xl border p-8 shadow-sm">
-        <div className="text-center mb-6">
-          <div className="w-14 h-14 mx-auto rounded-2xl bg-orange-500 text-white grid place-items-center font-black">
-            
-          </div>
-          <div className="mt-3 text-2xl font-extrabold">ZAKOOTA</div>
-          <div className="text-xs tracking-widest text-slate-400 font-bold">
-            MANAGEMENT PORTAL
-          </div>
-        </div>
+        {/* ...header... */}
 
         <form onSubmit={onSubmit} className="space-y-4">
           <div>
@@ -59,8 +63,10 @@ export default function Login() {
             </label>
             <input
               className="mt-2 w-full rounded-xl border px-4 py-3 outline-none focus:ring-4 focus:ring-orange-100"
+              value={username}
               onChange={(e) => setUsername(e.target.value)}
               placeholder="Enter User Name"
+              disabled={loading}
             />
           </div>
 
@@ -74,15 +80,26 @@ export default function Login() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
+              disabled={loading}
             />
           </div>
 
           {err ? (
-            <div className="text-sm text-red-600 font-semibold">{err}</div>
+            <div className="text-sm text-red-600 font-semibold py-2">{err}</div>
           ) : null}
 
-          <button className="w-full rounded-xl bg-orange-500 text-white font-bold py-3 shadow hover:opacity-95">
-            UNLOCK DASHBOARD
+          <button
+            disabled={disabled}
+            className={[
+              "w-full rounded-xl bg-orange-500 text-white font-bold py-3 shadow",
+              disabled ? "opacity-60 cursor-not-allowed" : "hover:opacity-95",
+            ].join(" ")}
+          >
+            {loading
+              ? "CHECKING..."
+              : cooldown > 0
+              ? `WAIT ${cooldown}s`
+              : "UNLOCK DASHBOARD"}
           </button>
         </form>
       </div>

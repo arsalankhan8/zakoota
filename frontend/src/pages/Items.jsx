@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { api } from "../api/api";
 import CreateItemModal from "../modals/CreateItemModal";
 import EditItemModal from "../modals/EditItemModal";
@@ -6,10 +6,13 @@ import ConfirmModal from "../modals/ConfirmModal";
 import { Plus, Pencil, Trash2, ExternalLink, Flame } from "lucide-react";
 import { Filter } from "lucide-react";
 
-
 export default function Items() {
   const [items, setItems] = useState([]);
   const [categories, setCategories] = useState([]);
+
+  // page states (same pattern as Categories)
+  const [loading, setLoading] = useState(true);
+  const [err, setErr] = useState("");
 
   // create
   const [openCreate, setOpenCreate] = useState(false);
@@ -18,17 +21,56 @@ export default function Items() {
   // edit
   const [openEdit, setOpenEdit] = useState(false);
   const [editing, setEditing] = useState(false);
-  const [editTarget, setEditTarget] = useState(null); // item object
+  const [editTarget, setEditTarget] = useState(null);
 
   // delete confirm
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null); // { id, name }
 
+  function getErrorMessage(e) {
+    if (e?.response) {
+      const status = e.response.status;
+      const msg = e.response.data?.message;
+
+      if (status === 401) return msg || "Unauthorized. Please login again.";
+      if (status === 403) return msg || "You don’t have permission to view this.";
+      if (status === 404) return msg || "Endpoint not found (404).";
+      if (status >= 500) return msg || "Server error. Please try again.";
+      return msg || `Request failed (${status}).`;
+    }
+
+    if (e?.request) {
+      return "Backend not responding. Check your API URL, server, or internet connection.";
+    }
+
+    return e?.message || "Something went wrong.";
+  }
+
+
+
   async function load() {
-    const [c, i] = await Promise.all([api.get("/categories"), api.get("/items")]);
-    setCategories(c.data);
-    setItems(i.data);
+    setLoading(true);
+    setErr("");
+
+    try {
+      const [cRes, iRes] = await Promise.all([
+        api.get("/categories"),
+        api.get("/items"),
+      ]);
+
+      const cats = Array.isArray(cRes.data) ? cRes.data : [];
+      const its = Array.isArray(iRes.data) ? iRes.data : [];
+
+      setCategories(cats);
+      setItems(its);
+    } catch (e) {
+      setCategories([]);
+      setItems([]);
+      setErr(getErrorMessage(e));
+    } finally {
+      setLoading(false);
+    }
   }
 
   useEffect(() => {
@@ -37,10 +79,13 @@ export default function Items() {
 
   async function create(payload) {
     setCreating(true);
+    setErr("");
     try {
       await api.post("/items", payload);
       await load();
       setOpenCreate(false);
+    } catch (e) {
+      setErr(getErrorMessage(e));
     } finally {
       setCreating(false);
     }
@@ -55,11 +100,14 @@ export default function Items() {
     if (!editTarget?._id) return;
 
     setEditing(true);
+    setErr("");
     try {
       await api.put(`/items/${editTarget._id}`, payload);
       await load();
       setOpenEdit(false);
       setEditTarget(null);
+    } catch (e) {
+      setErr(getErrorMessage(e));
     } finally {
       setEditing(false);
     }
@@ -74,20 +122,34 @@ export default function Items() {
     if (!deleteTarget?.id) return;
 
     setDeleting(true);
+    setErr("");
     try {
       await api.delete(`/items/${deleteTarget.id}`);
       await load();
       setConfirmOpen(false);
       setDeleteTarget(null);
+    } catch (e) {
+      setErr(getErrorMessage(e));
     } finally {
       setDeleting(false);
     }
   }
 
+  const uncategorized = useMemo(() => {
+    return items.filter((it) => {
+      const catId = it.category?._id || it.category;
+      return !catId;
+    });
+  }, [items]);
+
+  const hasAnyItems = items.length > 0;
+
+  const isEmpty = !loading && !err && !hasAnyItems;
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 ">
       {/* Header */}
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4">
         <div>
           <div className="text-xs font-bold tracking-widest text-slate-400">
             MENU MANAGEMENT / <span className="text-orange-500">ITEMS</span>
@@ -97,45 +159,156 @@ export default function Items() {
 
         <button
           onClick={() => setOpenCreate(true)}
-          className="inline-flex items-center gap-2 rounded-2xl bg-orange-500 text-white font-extrabold px-6 py-4 shadow hover:opacity-95"
+          className="inline-flex items-center gap-2 w-max rounded-2xl bg-orange-500 text-white font-extrabold px-6 py-4 shadow hover:opacity-95 disabled:opacity-50"
+          disabled={loading}
+          title={loading ? "Please wait..." : "Add New Item"}
         >
           <Plus size={18} strokeWidth={2.5} />
           Add New Item
         </button>
       </div>
 
-      {/* Grid */}
-      <div className="space-y-10">
-        {categories.map((cat) => {
-          const catItems = items.filter((it) => {
-            const catId = it.category?._id || it.category;
-            return String(catId) === String(cat._id);
-          });
+      {/* Error banner (same style as Categories) */}
+      {err ? (
+        <div className="rounded-3xl border border-red-100 bg-red-50 px-5 sm:px-6 py-5 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+          <div className="flex gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-white border border-red-100 grid place-items-center shrink-0">
+              <AlertTriangle className="text-red-500" size={18} />
+            </div>
+            <div>
+              <div className="font-extrabold text-slate-900">
+                Couldn’t load data
+              </div>
+              <div className="text-sm text-slate-600 mt-1">{err}</div>
+            </div>
+          </div>
 
-          if (catItems.length === 0) return null;
+          <button
+            onClick={load}
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-2xl bg-slate-900 px-5 py-3 text-sm font-extrabold text-white hover:opacity-95"
+          >
+            <RefreshCw size={16} />
+            Retry
+          </button>
+        </div>
+      ) : null}
 
-          return (
-            <section key={cat._id} className="space-y-5">
-              {/* Category header like your screenshot */}
+      {/* Loading skeleton */}
+      {loading ? (
+        <div className="space-y-5">
+          {[...Array(3)].map((_, sectionIdx) => (
+            <div key={sectionIdx} className="space-y-4">
+              <div className="animate-pulse flex items-center gap-3">
+                <div className="h-10 w-10 rounded-xl bg-slate-300" />
+                <div className="h-5 w-44 rounded bg-slate-300" />
+                <div className="h-6 w-20 rounded-full bg-slate-300" />
+              </div>
+
+              <div className="animate-pulse grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+                {[...Array(4)].map((__, cardIdx) => (
+                  <div
+                    key={cardIdx}
+                    className="bg-white rounded-3xl border border-slate-100 overflow-hidden shadow-sm"
+                  >
+                    <div className="h-[180px] sm:h-[220px] lg:h-[260px] xl:h-[300px] bg-slate-300" />
+                    <div className="p-4 sm:p-6 space-y-3">
+                      <div className="h-5 w-32 rounded bg-slate-300" />
+                      <div className="h-4 w-2/3 rounded bg-slate-300" />
+                      <div className="h-4 w-1/2 rounded bg-slate-300" />
+                      <div className="h-10 w-full rounded-2xl bg-slate-300" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : null}
+
+      {/* Empty state */}
+      {isEmpty ? (
+        <div className="bg-white rounded-3xl border border-slate-100 shadow-sm px-5 sm:px-8 py-16 text-center">
+          <div className="mx-auto w-14 h-14 rounded-3xl bg-slate-50 border border-slate-100 grid place-items-center">
+            <Layers className="text-slate-400" size={20} />
+          </div>
+          <div className="mt-4 text-xl font-extrabold text-slate-900">
+            No items yet
+          </div>
+          <div className="mt-2 text-sm text-slate-500">
+            Add your first item to start building your menu.
+          </div>
+          <button
+            onClick={() => setOpenCreate(true)}
+            className="mt-6 w-full sm:w-max inline-flex items-center justify-center gap-2 rounded-2xl bg-orange-500 px-6 py-4 text-sm font-extrabold text-white shadow hover:opacity-95"
+          >
+            <Plus size={18} strokeWidth={2.5} />
+            Add New Item
+          </button>
+        </div>
+      ) : null}
+
+      {/* Content */}
+      {!loading && !err ? (
+        <div className="space-y-10">
+          {categories.map((cat) => {
+            const catItems = items.filter((it) => {
+              const catId = it.category?._id || it.category;
+              return String(catId) === String(cat._id);
+            });
+
+            if (catItems.length === 0) return null;
+
+            return (
+              <section key={cat._id} className="space-y-5">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+                  <div className="w-10 h-10 rounded-xl bg-slate-900 text-white grid place-items-center">
+                    <Filter size={18} className="text-white" />
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-3">
+                    <div className="text-xl font-extrabold text-slate-900">
+                      {cat.name}
+                    </div>
+
+                    <span className="rounded-full bg-slate-100 px-3 py-1 text-[11px] font-extrabold tracking-widest text-slate-500">
+                      {catItems.length} ITEMS
+                    </span>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+                  {catItems.map((it) => (
+                    <Card
+                      key={it._id}
+                      it={it}
+                      onEdit={() => startEdit(it)}
+                      onDelete={() => askDelete(it)}
+                    />
+                  ))}
+                </div>
+              </section>
+            );
+          })}
+
+          {uncategorized.length > 0 && (
+            <section className="space-y-5">
               <div className="flex items-center gap-4">
                 <div className="w-10 h-10 rounded-xl bg-slate-900 text-white grid place-items-center">
-                  {/* simple icon inside */}
                   <Filter size={18} className="text-white" />
-
                 </div>
 
                 <div className="flex items-center gap-3">
-                  <div className="text-xl font-extrabold text-slate-900">{cat.name}</div>
-
+                  <div className="text-xl font-extrabold text-slate-900">
+                    Uncategorized
+                  </div>
                   <span className="rounded-full bg-slate-100 px-3 py-1 text-[11px] font-extrabold tracking-widest text-slate-500">
-                    {catItems.length} ITEMS
+                    {uncategorized.length} ITEMS
                   </span>
                 </div>
               </div>
 
-              {/* Items grid under this category */}
-              <div className="grid grid-cols-3 gap-6">
-                {catItems.map((it) => (
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
+                {uncategorized.map((it) => (
                   <Card
                     key={it._id}
                     it={it}
@@ -145,10 +318,9 @@ export default function Items() {
                 ))}
               </div>
             </section>
-          );
-        })}
-      </div>
-
+          )}
+        </div>
+      ) : null}
 
       {/* Create */}
       <CreateItemModal
@@ -239,9 +411,9 @@ function Card({ it, onEdit, onDelete }) {
   const img = it.imageUrl;
 
   return (
-    <div className="bg-white rounded-3xl border border-slate-100 overflow-hidden shadow-sm">
+    <div className="bg-white rounded-3xl border border-slate-100 overflow-hidden shadow-sm flex flex-col h-full">
       {/* image */}
-      <div className="h-[300px] bg-slate-50 border-b border-slate-100 overflow-hidden">
+      <div className="h-[180px] sm:h-[220px] lg:h-[260px] xl:h-[300px] bg-slate-50 border-b border-slate-100 overflow-hidden">
         {img ? (
           <img src={img} alt={it.name} className="w-full h-full object-cover" />
         ) : (
@@ -251,7 +423,7 @@ function Card({ it, onEdit, onDelete }) {
         )}
       </div>
 
-      <div className="p-6">
+      <div className="p-4 sm:p-6 flex-1 flex flex-col">
         <div className="flex items-center gap-3">
           {/* LIVE pill */}
           {it.isLive ? (
@@ -276,7 +448,7 @@ function Card({ it, onEdit, onDelete }) {
         </div>
 
 
-        <div className="mt-4 text-lg font-extrabold text-slate-900">{it.name}</div>
+        <div className="mt-4 text-base sm:text-lg font-extrabold text-slate-900">{it.name}</div>
         <div className="mt-1 text-sm text-slate-500 font-semibold line-clamp-2">
           {it.description || "—"}
         </div>
@@ -296,7 +468,7 @@ function Card({ it, onEdit, onDelete }) {
         )}
 
 
-        <div className="mt-6 flex items-center justify-between">
+        <div className="mt-6 flex items-center justify-between pt-2 mt-auto">
           <div className="text-sm font-black text-slate-900">
             AUD {Number(it.price || 0).toFixed(2)}
           </div>

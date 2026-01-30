@@ -33,12 +33,13 @@ export default function ConfirmModal({
           </div>
         </div>
 
-        <div className="mt-8 flex items-center justify-center gap-4">
+        {/* ✅ SAME BUTTON GROUP PATTERN */}
+        <div className="mt-8 flex flex-col items-center gap-4 min-[470px]:flex-row sm:items-start">
           <button
             type="button"
             onClick={onClose}
             disabled={loading}
-            className="min-w-[170px] rounded-2xl border border-slate-200 bg-white px-6 py-4 text-sm font-extrabold text-slate-600 hover:bg-slate-50 disabled:opacity-60"
+            className="w-full min-[470px]:w-auto min-w-[170px] rounded-2xl border border-slate-200 bg-white px-6 py-4 text-sm font-extrabold text-slate-600 hover:bg-slate-50 disabled:opacity-60"
           >
             {cancelText}
           </button>
@@ -47,7 +48,7 @@ export default function ConfirmModal({
             type="button"
             onClick={onConfirm}
             disabled={loading}
-            className={`min-w-[170px] rounded-2xl px-6 py-4 text-sm font-extrabold hover:opacity-95 disabled:opacity-60 ${confirmBtn}`}
+            className={`w-full min-[470px]:w-auto min-w-[170px] rounded-2xl px-6 py-4 text-sm font-extrabold hover:opacity-95 disabled:opacity-60 ${confirmBtn}`}
           >
             {loading ? "Deleting..." : confirmText}
           </button>

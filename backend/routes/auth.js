@@ -1,9 +1,18 @@
 import express from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import rateLimit from "express-rate-limit";
 import User from "../models/User.js";
 
 const router = express.Router();
+
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  limit: 10,                // 10 requests per IP per 15 mins
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: "Too many login attempts. Try again later." },
+});
 
 // one-time: create admin (remove in production)
 router.post("/seed-admin", async (req, res) => {
@@ -16,7 +25,8 @@ router.post("/seed-admin", async (req, res) => {
   res.json({ message: "Admin created" });
 });
 
-router.post("/login", async (req, res) => {
+// ✅ limiter ONLY here
+router.post("/login", loginLimiter, async (req, res) => {
   const { username, password } = req.body;
 
   const user = await User.findOne({ username });

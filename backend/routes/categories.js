@@ -1,6 +1,7 @@
 import express from "express";
 import Category from "../models/Category.js";
 import { requireAuth } from "../middlewares/auth.js";
+import Item from "../models/Item.js";
 
 const router = express.Router();
 
@@ -28,8 +29,17 @@ router.put("/:id", requireAuth, async (req, res) => {
 });
 
 router.delete("/:id", requireAuth, async (req, res) => {
-  await Category.findByIdAndDelete(req.params.id);
-  res.json({ ok: true });
-});
+  const id = req.params.id;
 
+  // 1) detach items
+  const r = await Item.updateMany(
+    { category: id },
+    { $set: { category: null } }
+  );
+
+  // 2) delete category
+  await Category.findByIdAndDelete(id);
+
+  res.json({ ok: true, detachedItems: r.modifiedCount });
+});
 export default router;

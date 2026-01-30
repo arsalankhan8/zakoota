@@ -29,4 +29,4 @@ export default function EditCategoryModal({
       </div>
     </Modal>
   );
-}
+};
