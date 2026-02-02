@@ -9,3 +9,16 @@
     font-family: "Barlow Condensed", sans-serif;
   }
 }
+
+/* Hide horizontal scrollbar only */
+.no-scrollbar-x {
+  overflow-x: auto;
+  overflow-y: hidden;
+
+  scrollbar-width: none;      /* Firefox */
+  -ms-overflow-style: none;   /* IE / Edge */
+}
+
+.no-scrollbar-x::-webkit-scrollbar {
+  height: 0;                  /* Chrome / Safari */
+}

@@ -12,7 +12,7 @@ dotenv.config();
 
 const app = express();
 
-// ✅ Add this if hosted behind proxy (safe to keep)
+//  Add this if hosted behind proxy (safe to keep)
 app.set("trust proxy", 1);
 
 app.use(helmet());
@@ -28,7 +28,7 @@ app.use(
 
 app.get("/api/health", (req, res) => res.json({ ok: true }));
 
-// ✅ No rate limiters here
+//  No rate limiters here
 app.use("/api/auth", authRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/items", itemRoutes);
