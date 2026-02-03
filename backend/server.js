@@ -21,10 +21,14 @@ app.use(express.json({ limit: "2mb" }));
 
 app.use(
   cors({
-    origin: process.env.CLIENT_URL,
-    credentials: false,
+    origin: [
+      "http://localhost:5173",
+ "http://192.168.18.124:5173",
+    ],
+    credentials: true,
   })
 );
+
 
 app.get("/api/health", (req, res) => res.json({ ok: true }));
 
@@ -37,9 +41,10 @@ const port = process.env.PORT || 5000;
 
 connectDB(process.env.MONGO_URI)
   .then(() => {
-    app.listen(port, () =>
-      console.log(`✅ API running on http://localhost:${port}`)
-    );
+app.listen(port, "0.0.0.0", () => {
+  console.log(`✅ API running on http://0.0.0.0:${port}`);
+});
+
   })
   .catch((err) => {
     console.error("❌ DB error:", err.message);

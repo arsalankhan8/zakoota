@@ -171,7 +171,7 @@ export default function FoodCategories() {
             {/* slider */}
             <div
                 ref={sliderRef}
-                className="flex overflow-x-auto no-scrollbar-x no-scrollbar scroll-smooth mb-12  snap-x snap-mandatory"
+                className="flex overflow-x-auto no-scrollbar-x no-scrollbar scroll-smooth snap-x snap-mandatory"
             >
                 {items.map((item, idx) => (
                     <CategoryCard
@@ -190,12 +190,12 @@ function CategoryCard({ item, isFirst, cols }) {
     return (
         <div
             className={[
-                "group relative h-[500px] mb-10 shrink-0 snap-start",
+                "group relative h-[500px] shrink-0 snap-start",
                 "cursor-pointer",
-                "bg-[#F2F0EA] overflow-hidden",
+                "bg-[#F4F1EA] overflow-hidden",
                 "transition-colors duration-300 hover:bg-[#F7B33B]",
-                "border-y border-black/10 border-r border-black/10",
-                isFirst ? "border-l border-black/10" : "border-l-0",
+                "border-y border-black/20 border-r border-black/20",
+                isFirst ? "border-l border-black/20" : "border-l-0",
             ].join(" ")}
             style={{
                 // ✅ key part:
