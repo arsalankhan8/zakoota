@@ -170,28 +170,26 @@ export default function BestSellingDishesSection({
     }, [items, limit]);
 
     return (
-        <section
-            className="relative w-full overflow-hidden"
-            style={{
-                backgroundImage: `
-  linear-gradient(#f4f1ea, #f4f1ea),
-  url(${bgImg})
-`,
+        <section className="relative w-full bg-[#f4f1ea] overflow-hidden">
+            {/* FULL-WIDTH background image */}
+<div className="pointer-events-none absolute left-1/2 top-0 w-screen -translate-x-1/2 hidden lg:block">
+  <img
+    src={bgImg}
+    alt=""
+    className="w-screen max-w-none object-contain h-auto"
+    draggable={false}
+  />
+</div>
 
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-                backgroundRepeat: "no-repeat",
-            }}
-        >
-
-            <div className="relative mx-auto max-w-7xl px-3 py-14 sm:py-16 lg:py-28">
+            {/* Content container */}
+            <div className="relative mx-auto max-w-7xl sm:pt-16 pb-16 lg:pb-40">
                 <h2 className="text-center text-4xl sm:text-6xl font-extrabold tracking-wide text-[#1b1b1b]">
                     {title}
                 </h2>
 
-                <div className="mt-10 sm:mt-12">
+                <div className="mt-10 sm:mt-12 px-5">
                     {err ? (
-                        <div className="mx-auto max-w-xl rounded-2xl bg-white/80 px-5 py-4 text-center text-sm text-red-600 shadow">
+                        <div className="mx-auto max-w-xl rounded-2xl bg-white/80  py-4 text-center text-sm text-red-600 shadow">
                             {err}
                         </div>
                     ) : null}
@@ -216,7 +214,7 @@ export default function BestSellingDishesSection({
                     ) : (
                         <>
                             {/* Desktop grid */}
-                            <div className="hidden sm:grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                            <div className="hidden px-5 sm:grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
                                 {bestSellers.map((item) => (
                                     <DishCard
                                         key={item?._id || item?.id}

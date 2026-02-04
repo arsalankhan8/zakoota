@@ -2,6 +2,18 @@ import { useState, useEffect } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import { Menu, X, MapPin, Bike } from "lucide-react";
 import logo from "../assets/site-logo.webp";
+import FbIcon from "../assets/facebook-icon.svg?react";
+import IgIcon from "../assets/instagram-icon.svg?react";
+import YtIcon from "../assets/youtube-icon.svg?react";
+
+
+const SocialIcon = ({ href="#", label, children, className="" }) => (
+  <a href={href} aria-label={label} target="_blank" rel="noreferrer"
+     className={`inline-flex items-center justify-center transition ${className}`}>
+    {children}
+  </a>
+);
+
 
 const navItem =
   "whitespace-nowrap text-[18px] max-[1380px]:text-[16px] font-extrabold tracking-wide max-[1380px]:tracking-[0.06em] uppercase transition hover:text-[#d6362b]";
@@ -9,69 +21,25 @@ const navItem =
 const navItemActive =
   "whitespace-nowrap text-[18px] max-[1380px]:text-[16px] font-extrabold tracking-wide max-[1380px]:tracking-[0.06em] uppercase text-[#d6362b]";
 
-const SocialIcon = ({ href = "#", label, children, className = "" }) => (
+const SocialImgIcon = ({ href = "#", label, src, tone = "light", className = "" }) => (
   <a
     href={href}
     aria-label={label}
-    className={`inline-flex items-center justify-center transition ${className}`}
     target="_blank"
     rel="noreferrer"
+    className={`inline-flex items-center justify-center transition ${className}`}
   >
-    {children}
+    <img
+      src={src}
+      alt=""
+      className={[
+        "h-[14px] w-auto",
+        tone === "light" ? "brightness-0 invert" : "brightness-0",
+      ].join(" ")}
+    />
   </a>
 );
 
-
-const FacebookIcon = () => (
-  <svg
-    focusable="false"
-    width="9"
-    height="17"
-    viewBox="0 0 9 17"
-    className="h-[14px] w-auto"
-  >
-    <path
-      fillRule="evenodd"
-      clipRule="evenodd"
-      d="M2.486 16.2084L2.486 8.81845H0L0 5.93845L2.486 5.93845L2.486 3.81845C2.38483 2.79982 2.73793 1.78841 3.45107 1.05407C4.16421 0.319722 5.16485 -0.0628415 6.186 0.00844868C6.9284 0.00408689 7.67039 0.0441585 8.408 0.128449V2.69845L6.883 2.69845C6.4898 2.61523 6.08104 2.73438 5.79414 3.01585C5.50724 3.29732 5.3803 3.70373 5.456 4.09845L5.456 5.93845H8.308L7.936 8.81845H5.46L5.46 16.2084H2.486Z"
-      fill="currentColor"
-    />
-  </svg>
-);
-
-const InstagramIcon = () => (
-  <svg
-    focusable="false"
-    width="16"
-    height="16"
-    viewBox="0 0 16 16"
-    className="h-[14px] w-auto"
-  >
-    <path
-      fillRule="evenodd"
-      clipRule="evenodd"
-      d="M8 0C5.827 0 5.555.01 4.702.048 3.85.087 3.269.222 2.76.42a3.921 3.921 0 00-1.417.923c-.445.444-.719.89-.923 1.417-.198.509-.333 1.09-.372 1.942C.01 5.555 0 5.827 0 8s.01 2.445.048 3.298c.039.852.174 1.433.372 1.942.204.526.478.973.923 1.417.444.445.89.719 1.417.923.509.198 1.09.333 1.942.372C5.555 15.99 5.827 16 8 16s2.445-.01 3.298-.048c.852-.039 1.433-.174 1.942-.372a3.922 3.922 0 001.417-.923c.445-.444.719-.89.923-1.417.198-.509.333-1.09.372-1.942C15.99 10.445 16 10.173 16 8s-.01-2.445-.048-3.298c-.039-.852-.174-1.433-.372-1.942a3.922 3.922 0 00-.923-1.417A3.921 3.921 0 0013.24.42c-.509-.198-1.09-.333-1.942-.372C10.445.01 10.173 0 8 0zm0 1.441c2.136 0 2.39.009 3.233.047.78.036 1.203.166 1.485.276.374.145.64.318.92.598.28.28.453.546.598.92.11.282.24.705.276 1.485.038.844.047 1.097.047 3.233s-.009 2.39-.047 3.233c-.036.78-.166 1.203-.276 1.485-.145.374-.318.64-.598.92-.28.28-.546.453-.92.598-.282.11-.705.24-1.485.276-.844.038-1.097.047-3.233.047s-2.39-.009-3.233-.047c-.78-.036-1.203-.166-1.485-.276a2.479 2.479 0 01-.92-.598 2.478 2.478 0 01-.598-.92c-.11-.282-.24-.705-.276-1.485-.038-.844-.047-1.097-.047-3.233s.009-2.39.047-3.233c.036-.78.166-1.203.276-1.485.145-.374.318-.64.598-.92.28-.28.546-.453.92-.598.282-.11.705-.24 1.485-.276.844-.038 1.097-.047 3.233-.047zm0 9.226a2.667 2.667 0 110-5.334 2.667 2.667 0 010 5.334zm0-6.775a4.108 4.108 0 100 8.216 4.108 4.108 0 000-8.216zm5.23-.162a.96.96 0 11-1.92 0 .96.96 0 011.92 0z"
-      fill="currentColor"
-    />
-  </svg>
-);
-
-const YoutubeIcon = () => (
-  <svg
-    focusable="false"
-    width="18"
-    height="13"
-    viewBox="0 0 18 13"
-    className="h-[14px] w-auto"
-  >
-    <path
-      fillRule="evenodd"
-      clipRule="evenodd"
-      d="M16.0325 0.369454C16.807 0.572743 17.4168 1.17173 17.6238 1.9324C18 3.31101 18 6.1875 18 6.1875C18 6.1875 18 9.06389 17.6238 10.4427C17.4168 11.2033 16.807 11.8023 16.0325 12.0056C14.6288 12.375 9 12.375 9 12.375C9 12.375 3.37122 12.375 1.96752 12.0056C1.19311 11.8023 0.583159 11.2033 0.376159 10.4427C0 9.06389 0 6.1875 0 6.1875C0 6.1875 0 3.31101 0.376159 1.9324C0.583159 1.17173 1.19311 0.572743 1.96752 0.369454C3.37122 0 9 0 9 0C9 0 14.6288 0 16.0325 0.369454ZM11.8636 6.1876L7.1591 8.79913V3.57588L11.8636 6.1876Z"
-      fill="currentColor"
-    />
-  </svg>
-);
 
 const PhoneIcon = ({ className = "", size = 25, ...props }) => (
   <svg
@@ -100,7 +68,7 @@ export default function Navbar() {
   return (
     <header className="w-full font-[Barlow_Condensed]">
       {/* ─────────────── Top Utility Bar ─────────────── */}
-      <div className="hidden md:block w-full bg-[#1f1f1f] text-white">
+      <div className="hidden lg:block w-full bg-[#1f1f1f] text-white">
         <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-10">
           {/* Use grid so center text stays perfectly centered (aligned with logo below) */}
           <div className="py-2 sm:py-0 sm:h-10 grid grid-cols-[1fr_auto_1fr] items-center gap-3 text-[16px] sm:text-[18px]">
@@ -118,19 +86,20 @@ export default function Navbar() {
             </div>
 
             {/* Right */}
-            <div className="justify-self-end lg:w-[320px] max-[1380px]:lg:w-[260px]">
-              <div className="flex items-center justify-end gap-4">
-                <SocialIcon label="Facebook" href="#">
-                  <FacebookIcon />
-                </SocialIcon>
-                <SocialIcon label="Instagram" href="#">
-                  <InstagramIcon />
-                </SocialIcon>
-                <SocialIcon label="YouTube" href="#">
-                  <YoutubeIcon />
-                </SocialIcon>
-              </div>
-            </div>
+<div className="flex items-center justify-end gap-4 text-white">
+<SocialIcon label="Facebook" href="#" className="text-white hover:opacity-90">
+  <FbIcon className="h-[14px] w-auto" />
+</SocialIcon>
+<SocialIcon label="Instagram" href="#" className="text-white hover:opacity-90">
+  <IgIcon className="h-[14px] w-auto" />
+</SocialIcon>
+<SocialIcon label="YouTube" href="#" className="text-white hover:opacity-90">
+  <YtIcon className="h-[14px] w-auto" />
+</SocialIcon>
+
+
+</div>
+
           </div>
         </div>
       </div>
@@ -305,25 +274,27 @@ export default function Navbar() {
             </div>
 
             {/* socials */}
-            <div className="mt-6 flex items-center gap-4">
-              <span className="text-[12px] font-extrabold uppercase tracking-[0.22em] text-black/50">
-                FOLLOW
-              </span>
-              <div className="flex items-center gap-4 text-black/70">
-                <SocialIcon label="Facebook" href="#">
-                  <FacebookIcon />
-                </SocialIcon>
-                <SocialIcon label="Instagram" href="#">
-                  <InstagramIcon />
-                </SocialIcon>
-                <SocialIcon label="YouTube" href="#">
-                  <YoutubeIcon />
-                </SocialIcon>
-              </div>
-            </div>
+<div className="mt-6 flex items-center gap-4">
+  <span className="text-[12px] font-extrabold uppercase tracking-[0.22em] text-black/50">
+    FOLLOW
+  </span>
+
+  <div className="flex items-center gap-4">
+<SocialIcon label="Facebook" href="#" className="text-black/80 hover:opacity-80">
+  <FbIcon className="h-[14px] w-auto" />
+</SocialIcon>
+<SocialIcon label="Instagram" href="#" className="text-black/80 hover:opacity-80">
+  <IgIcon className="h-[14px] w-auto" />
+</SocialIcon>
+<SocialIcon label="YouTube" href="#" className="text-black/80 hover:opacity-80">
+  <YtIcon className="h-[14px] w-auto" />
+</SocialIcon>
+
+  </div>
+</div>
           </div>
         </div>
       </div>
     </header>
-  );
+ );
 }

@@ -8,6 +8,7 @@ import Categories from "./pages/Categories.jsx";
 import Items from "./pages/Items.jsx";
 import Layout from "./components/Layout.jsx";
 import Navbar from "./components/Navbar.jsx";
+import Footer from "./components/Footer.jsx";
 
 function Protected({ children }) {
   const token = localStorage.getItem("token");
@@ -17,21 +18,31 @@ function Protected({ children }) {
 export default function App() {
   const location = useLocation();
 
-  // ❌ hide navbar on admin routes
-  const hideNavbar = location.pathname.startsWith("/admin");
+  const isAdmin = location.pathname.startsWith("/admin");
+  const isLogin = location.pathname === "/login";
+
+  const isPublic = !isAdmin && !isLogin;
 
   return (
     <>
-      {!hideNavbar && <Navbar />}
+      {isPublic && (
+        <div className="public-site">
+          <Navbar />
 
+          <Routes>
+            {/* 🌐 Public pages */}
+            <Route path="/" element={<LandingPage />} />
+          </Routes>
+
+          <Footer />
+        </div>
+      )}
+
+      {/* 🔐 Login */}
       <Routes>
-        {/* 🌐 Public website */}
-        <Route path="/" element={<LandingPage />} />
-
-        {/* 🔐 Login */}
         <Route path="/login" element={<Login />} />
 
-        {/* 🔒 Admin area */}
+        {/* 🔒 Admin */}
         <Route
           path="/admin"
           element={

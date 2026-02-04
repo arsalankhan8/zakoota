@@ -10,11 +10,11 @@ export default function FoodPromiseSection() {
   ];
 
   return (
-    <section className="relative w-full bg-[#F4F1EA] overflow-hidden mb-14">
+    <section className="relative w-full bg-[#F4F1EA] overflow-hidden ">
       {/* Watermark text (diagonal) */}
 
 
-      <div className="mx-auto max-w-7xl px-6 py-10 sm:py-12 lg:py-16">
+      <div className="mx-auto max-w-7xl px-6 pb-10 sm:pb-12 lg:pb-16">
         <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-2 lg:gap-14">
           {/* LEFT */}
           <div className="relative">
@@ -35,11 +35,7 @@ export default function FoodPromiseSection() {
             </p>
 
             <h2 className="mt-4 text-[34px] leading-[1.05] sm:text-[55px] lg:text-[65px] font-black tracking-[1px] text-[#1f1f1f]">
-              MADE RIGHT.
-              <br className="hidden sm:block" />
-              MADE ESPECIALLY
-              <br className="hidden sm:block" />
-              FOR YOU.
+              MADE RIGHT. MADE ESPECIALLY FOR YOU.
             </h2>
 
             <p className="mt-5 sm:max-w-[85%] text-[18px] leading-[1.35] text-[#464646]">

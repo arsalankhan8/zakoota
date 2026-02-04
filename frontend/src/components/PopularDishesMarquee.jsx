@@ -1,6 +1,6 @@
 export default function PopularDishesMarquee() {
   return (
-    <div className="relative w-full overflow-hidden py-10">
+    <div className="relative bg-[#f4f1ea] w-full overflow-hidden py-10">
       <div
         className="
           flex min-w-max whitespace-nowrap

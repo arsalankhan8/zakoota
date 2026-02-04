@@ -49,7 +49,6 @@ const items = [
             "https://ap-fazfood.myshopify.com/cdn/shop/files/Vector_7.png?v=1702003488",
     },
 ];
-
 export default function FoodCategories() {
     const sliderRef = useRef(null);
 
@@ -57,6 +56,7 @@ export default function FoodCategories() {
     const [canScroll, setCanScroll] = useState(false);
     const [atStart, setAtStart] = useState(true);
     const [atEnd, setAtEnd] = useState(false);
+    const [activeIdx, setActiveIdx] = useState(null);
 
     // breakpoint-driven "auto" columns: (tweak if you want)
     useEffect(() => {
@@ -119,6 +119,60 @@ export default function FoodCategories() {
         });
     };
 
+    useEffect(() => {
+        const el = sliderRef.current;
+        if (!el) return;
+
+        const onScroll = () => {
+            const center = el.scrollLeft + el.clientWidth / 2;
+            let closestIdx = null;
+            let closestDist = Infinity;
+
+            Array.from(el.children).forEach((child, idx) => {
+                const childCenter =
+                    child.offsetLeft + child.clientWidth / 2;
+                const dist = Math.abs(center - childCenter);
+
+                if (dist < closestDist) {
+                    closestDist = dist;
+                    closestIdx = idx;
+                }
+            });
+
+            setActiveIdx(closestIdx);
+        };
+
+        onScroll(); // initial
+        el.addEventListener("scroll", onScroll, { passive: true });
+
+        return () => el.removeEventListener("scroll", onScroll);
+    }, []);
+
+
+  const [revealed, setRevealed] = useState(false);
+
+  // reveal when section comes into view (once)
+  useEffect(() => {
+    const el = sliderRef.current;
+    if (!el) return;
+
+    // observe the section wrapper (or slider itself)
+    const sectionEl = el.closest("section") || el;
+
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setRevealed(true);
+          io.disconnect();
+        }
+      },
+      { threshold: 0.3 }
+    );
+
+    io.observe(sectionEl);
+    return () => io.disconnect();
+  }, []);
+
     return (
         <section className="relative w-screen left-1/2 -translate-x-1/2 ">
             {/* arrows on TOP only if overflow */}
@@ -173,126 +227,135 @@ export default function FoodCategories() {
                 ref={sliderRef}
                 className="flex overflow-x-auto no-scrollbar-x no-scrollbar scroll-smooth snap-x snap-mandatory"
             >
-                {items.map((item, idx) => (
-                    <CategoryCard
-                        key={item.id}
-                        item={item}
-                        isFirst={idx === 0}
-                        cols={cols}
-                    />
-                ))}
+{items.map((item, idx) => (
+  <CategoryCard
+    key={item.id}
+    item={item}
+    idx={idx}
+    revealed={revealed}
+    isFirst={idx === 0}
+    cols={cols}
+    isActive={idx === activeIdx}
+    onActivate={() => setActiveIdx(idx)}
+    onDeactivate={() => setActiveIdx(null)}
+  />
+))}
+
+
             </div>
         </section>
     );
 };
 
-function CategoryCard({ item, isFirst, cols }) {
-    return (
-        <div
-            className={[
-                "group relative h-[500px] shrink-0 snap-start",
-                "cursor-pointer",
-                "bg-[#F4F1EA] overflow-hidden",
-                "transition-colors duration-300 hover:bg-[#F7B33B]",
-                "border-y border-black/20 border-r border-black/20",
-                isFirst ? "border-l border-black/20" : "border-l-0",
-            ].join(" ")}
-            style={{
-                // ✅ key part:
-                // - if items < 5 on desktop => cols becomes items.length => cards expand to fill
-                // - but NEVER shrink below 340px
-                flexBasis: `max(340px, ${100 / cols}vw)`,
-            }}
-        >
+function CategoryCard({
+  item,
+  idx,
+  revealed,
+  isFirst,
+  cols,
+  isActive,
+  onActivate,
+  onDeactivate,
+}) {
+  const delay = 80 * idx; // stagger (ms)
+  const x = idx % 2 === 0 ? -26 : 26; // left/right
+
+  return (
+    <div
+      onMouseEnter={onActivate}
+      onMouseLeave={onDeactivate}
+      onFocus={onActivate}
+      onBlur={onDeactivate}
+      className={[
+        "group relative h-[500px] shrink-0 snap-start cursor-pointer overflow-hidden",
+        "bg-[#F4F1EA] transition-colors duration-300",
+        isActive ? "bg-[#F7B33B]" : "hover:bg-[#F7B33B]",
+        "border-y border-black/20 border-r border-black/20",
+        isFirst ? "border-l border-black/20" : "border-l-0",
+        // start hidden until revealed
+        revealed ? "opacity-100" : "opacity-0",
+      ].join(" ")}
+style={{
+  flexBasis: `max(340px, ${100 / cols}vw)`,
+  animation: revealed
+    ? `cardReveal 700ms cubic-bezier(.2,.8,.2,1) ${delay}ms both`
+    : "none",
+  ["--x"]: `${x}px`,
+}}
+    >
             {/* TEXT IMAGE */}
             <div
-                className="
-          absolute left-1/2 -translate-x-1/2 z-30
-          top-[350px] group-hover:top-10
-          transition-all duration-300 ease-out
-        "
+                className={[
+                    "absolute left-1/2 -translate-x-1/2 z-30 transition-all duration-300 ease-out",
+                    isActive ? "top-10" : "top-[350px] group-hover:top-10",
+                ].join(" ")}
             >
                 <img
                     src={item.textImg}
                     alt={item.title}
-                    className="
-            h-[70px] select-none
-            transition duration-300 ease-out
-            group-hover:brightness-0 group-hover:invert
-          "
                     draggable={false}
+                    className={[
+                        "h-[70px] select-none transition duration-300 ease-out",
+                        isActive ? "brightness-0 invert" : "group-hover:brightness-0 group-hover:invert",
+                    ].join(" ")}
                 />
             </div>
 
             {/* DISH */}
             <div
-                className="
-          absolute left-1/2 -translate-x-1/2 z-20
-          top-14 group-hover:top-[150px]
-          transition-all duration-300 ease-out w-[250px]
-        "
+                className={[
+                    "absolute left-1/2 -translate-x-1/2 z-20 transition-all duration-300 ease-out w-[250px]",
+                    isActive ? "top-[150px]" : "top-14 group-hover:top-[150px]",
+                ].join(" ")}
             >
-                <img
-                    src={item.dishImg}
-                    alt={item.title}
-                    className="w-[300px] select-none"
-                    draggable={false}
-                />
+                <img src={item.dishImg} alt={item.title} draggable={false} className="w-[300px] select-none" />
             </div>
 
             {/* HOVER BLOBS */}
             <img
                 src={yellowDown}
                 alt=""
-                className="
-          pointer-events-none absolute z-10
-          left-8 top-[180px] w-[120px]
-          opacity-0 scale-90 -translate-x-10 -translate-y-8 rotate-[-6deg]
-          transition-all duration-300 ease-out
-          group-hover:opacity-100 group-hover:scale-100
-          group-hover:translate-x-0 group-hover:translate-y-0 group-hover:rotate-0
-        "
+                className={[
+                    "pointer-events-none absolute z-10 left-8 top-[180px] w-[120px] transition-all duration-300 ease-out",
+                    isActive
+                        ? "opacity-100 scale-100 translate-x-0 translate-y-0 rotate-0"
+                        : "opacity-0 scale-90 -translate-x-10 -translate-y-8 rotate-[-6deg] group-hover:opacity-100 group-hover:scale-100 group-hover:translate-x-0 group-hover:translate-y-0 group-hover:rotate-0",
+                ].join(" ")}
             />
 
             <img
                 src={yellowUp}
                 alt=""
-                className="
-          pointer-events-none absolute z-10
-          right-12 top-[270px] w-[90px]
-          opacity-0 scale-90 translate-x-10 translate-y-8 rotate-[6deg]
-          transition-all duration-300 ease-out delay-75
-          group-hover:opacity-100 group-hover:scale-100
-          group-hover:translate-x-0 group-hover:translate-y-0 group-hover:rotate-0
-        "
+                className={[
+                    "pointer-events-none absolute z-10 right-12 top-[270px] w-[90px] transition-all duration-300 ease-out",
+                    isActive
+                        ? "opacity-100 scale-100 translate-x-0 translate-y-0 rotate-0"
+                        : "opacity-0 scale-90 translate-x-10 translate-y-8 rotate-[6deg] delay-75 group-hover:opacity-100 group-hover:scale-100 group-hover:translate-x-0 group-hover:translate-y-0 group-hover:rotate-0",
+                ].join(" ")}
             />
 
             {/* leaves */}
             <img
                 src={leafDownLeft}
                 alt=""
-                className="
-          pointer-events-none absolute z-10
-          left-20 bottom-28 w-[40px]
-          opacity-0 scale-90 -translate-x-10 translate-y-10 rotate-[-12deg]
-          transition-all duration-300 ease-out
-          group-hover:opacity-100 group-hover:scale-100
-          group-hover:translate-x-0 group-hover:translate-y-0 group-hover:rotate-0
-        "
+                className={[
+                    "pointer-events-none absolute z-10 left-20 bottom-28 w-[40px] transition-all duration-300 ease-out",
+                    isActive
+                        ? "opacity-100 scale-100 translate-x-0 translate-y-0 rotate-0"
+                        : "opacity-0 scale-90 -translate-x-10 translate-y-10 rotate-[-12deg] group-hover:opacity-100 group-hover:scale-100 group-hover:translate-x-0 group-hover:translate-y-0 group-hover:rotate-0",
+                ].join(" ")}
             />
 
             <img
                 src={leafUpRight}
                 alt=""
-                className="
-          pointer-events-none absolute z-10
-          right-16 top-40 w-[40px]
-          opacity-0 scale-90 translate-x-10 -translate-y-10 rotate-[12deg]
-          transition-all duration-300 ease-out delay-100
-          group-hover:opacity-100 group-hover:scale-100
-          group-hover:translate-x-0 group-hover:translate-y-0 group-hover:rotate-0
-        "
+                className={[
+                    "pointer-events-none absolute z-10 right-16 top-40 w-[40px] transition-all duration-300 ease-out",
+                    isActive
+                        ? "opacity-100 scale-100 translate-x-0 translate-y-0 rotate-0"
+                        : "opacity-0 scale-90 translate-x-10 -translate-y-10 rotate-[12deg] delay-100 group-hover:opacity-100 group-hover:scale-100 group-hover:translate-x-0 group-hover:translate-y-0 group-hover:rotate-0",
+                ].join(" ")}
             />
         </div>
     );
-};
+}

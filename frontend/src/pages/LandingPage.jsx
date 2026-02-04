@@ -6,7 +6,7 @@ import PromoBanners from "../components/PromoBanners.jsx";
 import PopularDishesMarquee from "../components/PopularDishesMarquee.jsx";
 import BestSellingDishesSection from "../components/BestSellingDishesSection";
 import FoodPromiseSection from "../components/FoodPromiseSection.jsx";
-
+import PromoBannersSecondSection from "../components/PromoBannersSecondSection.jsx";
 function LandingPage() {
   return (
     <main className="w-full overflow-hidden">
@@ -19,6 +19,7 @@ function LandingPage() {
         limit={4}
       />
       <FoodPromiseSection />
+      <PromoBannersSecondSection />
     </main>
   );
 }
