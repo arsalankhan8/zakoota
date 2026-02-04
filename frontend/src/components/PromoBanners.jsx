@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from "react";
 import fastFoodBanner from "../assets/fast-food-banner.webp";
 import burgerBanner from "../assets/burger-banner.webp";
 import pizzaBanner from "../assets/pizza-banner.webp";
@@ -34,6 +35,31 @@ const banners = [
     },
 ];
 
+function useInViewOnce(threshold = 0.3) {
+  const ref = useRef(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    if (!ref.current || visible) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setVisible(true);
+          observer.disconnect();
+        }
+      },
+      { threshold }
+    );
+
+    observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, [visible, threshold]);
+
+  return [ref, visible];
+}
+
+
 export default function PromoBanners() {
     return (
         <section className="w-full">
@@ -45,77 +71,93 @@ export default function PromoBanners() {
         "
                 style={{ gap: 15 }}
             >
-                {banners.map((b) => (
-                    <div
-                        key={b.id}
-                        className="
-              relative overflow-hidden
-              min-h-[240px] sm:min-h-[280px] lg:min-h-[520px]
-              rounded-none
-            "
-                    >
-                        {/* Background image */}
-                        <img
-                            src={b.img}
-                            alt=""
-                            className="absolute inset-0 h-full w-full object-cover"
-                        />
+{banners.map((b) => {
+  const [ref, visible] = useInViewOnce(0.3);
 
+  return (
+    <div
+      key={b.id}
+      ref={ref}
+      className={`
+        group relative overflow-hidden
+        min-h-[240px] sm:min-h-[280px] lg:min-h-[520px]
+        transition-all duration-700 ease-out
+        ${visible
+          ? "opacity-100 translate-y-0 scale-100"
+          : "opacity-0 translate-y-10 scale-[0.96]"}
+      `}
+    >
+      {/* Background image */}
+      <img
+        src={b.img}
+        alt=""
+        className="
+          absolute inset-0 h-full w-full object-cover
+          transition-transform duration-700 ease-out
+          group-hover:scale-110
+        "
+      />
 
-                        {/* Content */}
-                        <div
-                            className="
-    relative z-10 h-full text-white
-    flex flex-col items-start justify-center
-    px-6 py-10
-    sm:px-10 sm:py-14
-    lg:px-[40px] lg:py-[80px]
-  "
-                        >
+      {/* Content */}
+      <div
+        className="
+          relative z-10 h-full text-white
+          flex flex-col items-start justify-center
+          px-6 py-10
+          sm:px-10 sm:py-14
+          lg:px-[40px] lg:py-[80px]
+        "
+      >
+        {/* Title */}
+        <h3 className="font-extrabold uppercase leading-[0.95] tracking-wide text-[36px] sm:text-[42px] lg:text-[70px]">
+          <span className="block">{b.title[0]}</span>
+          <span className="block">{b.title[1]}</span>
+        </h3>
 
-                            {/* Title */}
-                            <h3 className="font-extrabold uppercase leading-[0.95] tracking-wide text-[36px] sm:text-[42px] lg:text-[70px]">
-                                <span className="block">{b.title[0]}</span>
-                                <span className="block">{b.title[1]}</span>
-                            </h3>
+        {/* Sub text */}
+        <div className="mt-3">
+          <p className="text-white/80 text-[12px] sm:text-[13px] uppercase tracking-widest">
+            {b.subtitle1}
+          </p>
+          {b.subtitle2 && (
+            <p className="text-white/80 text-[12px] sm:text-[13px] uppercase tracking-widest">
+              {b.subtitle2}
+            </p>
+          )}
+        </div>
 
-                            {/* Sub text */}
-                            <div className="mt-3">
-                                <p className="text-white/80 text-[12px] sm:text-[13px] uppercase tracking-widest ">
-                                    {b.subtitle1}
-                                </p>
-                                {b.subtitle2 ? (
-                                    <p className="text-white/80 text-[12px] sm:text-[13px] uppercase tracking-widest">
-                                        {b.subtitle2}
-                                    </p>
-                                ) : null}
-                            </div>
+        {/* Price */}
+        <p className="mt-1 sm:mt-5 text-[#f6c445] font-extrabold text-[28px] sm:text-[40px]">
+          {b.price}
+        </p>
 
-                            {/* Price */}
-                            <p className=" mt-1 sm:mt-5 text-[#f6c445] font-extrabold text-[28px] sm:text-[40px]">
-                                {b.price}
-                            </p>
-
-                            {/* Button */}
-                            <button
-                                type="button"
-                                className="
-                  mt-4 sm:mt-6
-                  inline-flex items-center gap-3
-                  bg-white text-black
-                  rounded-xl
-                  px-6 py-3
-                  font-bold uppercase tracking-wider text-[16px] sm:text-[18px]
-                  hover:scale-[1.02] active:scale-[0.99]
-                  transition
-                "
-                            >
-                                ORDER NOW
-                                <img src={rightArrow} alt="" className="w-4 h-4 filter brightness-0" />
-                            </button>
-                        </div>
-                    </div>
-                ))}
+        {/* Button */}
+        <button
+          type="button"
+          className="
+            mt-4 sm:mt-6
+            inline-flex items-center gap-3
+            bg-white text-black
+            rounded-xl
+            px-6 py-3
+            font-bold uppercase tracking-wider
+            text-[16px] sm:text-[18px]
+            transition
+            hover:scale-[1.04]
+            active:scale-[0.98]
+          "
+        >
+          ORDER NOW
+          <img
+            src={rightArrow}
+            alt=""
+            className="w-4 h-4 filter brightness-0"
+          />
+        </button>
+      </div>
+    </div>
+  );
+})}
             </div>
         </section>
     );

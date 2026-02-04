@@ -3,10 +3,14 @@ import { api } from "../api/api";
 import CreateItemModal from "../modals/CreateItemModal";
 import EditItemModal from "../modals/EditItemModal";
 import ConfirmModal from "../modals/ConfirmModal";
-import { Plus, Pencil, Trash2, ExternalLink, Flame } from "lucide-react";
+import { Plus, Pencil, Trash2, ExternalLink, Flame,   Layers,   } from "lucide-react";
 import { Filter } from "lucide-react";
 
 export default function Items() {
+  const API = import.meta.env.VITE_API_URL;
+  const BASE = API?.endsWith("/api") ? API.slice(0, -4) : API;
+
+
   const [items, setItems] = useState([]);
   const [categories, setCategories] = useState([]);
 
@@ -281,9 +285,11 @@ export default function Items() {
                     <Card
                       key={it._id}
                       it={it}
+                      base={BASE}
                       onEdit={() => startEdit(it)}
                       onDelete={() => askDelete(it)}
                     />
+
                   ))}
                 </div>
               </section>
@@ -312,10 +318,12 @@ export default function Items() {
                   <Card
                     key={it._id}
                     it={it}
+                    base={BASE}
                     onEdit={() => startEdit(it)}
                     onDelete={() => askDelete(it)}
                   />
                 ))}
+
               </div>
             </section>
           )}
@@ -346,7 +354,18 @@ export default function Items() {
               name: editTarget.name || "",
               category: editTarget.category?._id || editTarget.category || "",
               description: editTarget.description || "",
-              price: editTarget.price || 0,
+              prices: editTarget.prices
+                ? {
+                  small: Number(editTarget.prices.small || 0),
+                  medium: Number(editTarget.prices.medium || 0),
+                  large: Number(editTarget.prices.large || 0),
+                }
+                : {
+                  // legacy fallback
+                  small: Number(editTarget.price || 0),
+                  medium: 0,
+                  large: 0,
+                },
               externalUrl: editTarget.externalUrl || "",
               isLive: !!editTarget.isLive,
               isBestSeller: !!editTarget.isBestSeller,
@@ -354,6 +373,7 @@ export default function Items() {
             }
             : {}
         }
+
         onSave={saveEdit}
         loading={editing}
       />
@@ -407,15 +427,43 @@ function safeHref(url) {
 }
 
 
-function Card({ it, onEdit, onDelete }) {
+function Card({ it, onEdit, onDelete, base = "" }) {
   const img = it.imageUrl;
+  const joinUrl = (a, b) => `${String(a).replace(/\/$/, "")}/${String(b).replace(/^\//, "")}`;
+  // ✅ build correct image src
+  const imgSrc = img
+    ? img.startsWith("http")
+      ? img
+      : joinUrl(base, img)
+    : null;
+
+
+  // ✅ normalize prices (support new + old schema)
+  const p = it.prices || {};
+  const priceList = [
+    { key: "small", label: "SMALL", value: Number(p.small) },
+    { key: "medium", label: "MEDIUM", value: Number(p.medium) },
+    { key: "large", label: "LARGE", value: Number(p.large) },
+  ].filter((x) => Number.isFinite(x.value) && x.value > 0);
+
+  // fallback old single price
+  const fallbackPrice =
+    !priceList.length && Number(it.price) > 0
+      ? [{ key: "single", label: "PRICE", value: Number(it.price) }]
+      : [];
+
+  const finalPrices = priceList.length ? priceList : fallbackPrice;
 
   return (
     <div className="bg-white rounded-3xl border border-slate-100 overflow-hidden shadow-sm flex flex-col h-full">
       {/* image */}
       <div className="h-[180px] sm:h-[220px] lg:h-[260px] xl:h-[300px] bg-slate-50 border-b border-slate-100 overflow-hidden">
-        {img ? (
-          <img src={img} alt={it.name} className="w-full h-full object-cover" />
+        {imgSrc ? (
+          <img
+            src={imgSrc}
+            alt={it.name}
+            className="w-full h-full object-cover"
+          />
         ) : (
           <div className="w-full h-full grid place-items-center text-sm font-extrabold text-slate-300">
             No Image
@@ -438,7 +486,7 @@ function Card({ it, onEdit, onDelete }) {
             </span>
           )}
 
-          {/* BEST SELLER text (no pill) */}
+          {/* BEST SELLER */}
           {it.isBestSeller ? (
             <span className="inline-flex items-center gap-2 text-[11px] font-extrabold tracking-widest text-orange-600">
               <Flame size={14} className="text-orange-500" />
@@ -447,8 +495,10 @@ function Card({ it, onEdit, onDelete }) {
           ) : null}
         </div>
 
+        <div className="mt-4 text-base sm:text-lg font-extrabold text-slate-900">
+          {it.name}
+        </div>
 
-        <div className="mt-4 text-base sm:text-lg font-extrabold text-slate-900">{it.name}</div>
         <div className="mt-1 text-sm text-slate-500 font-semibold line-clamp-2">
           {it.description || "—"}
         </div>
@@ -464,15 +514,31 @@ function Card({ it, onEdit, onDelete }) {
             {safeHost(it.externalUrl)}
           </a>
         ) : (
-          <div className="mt-4 text-xs font-extrabold tracking-widest text-slate-300">—</div>
+          <div className="mt-4 text-xs font-extrabold tracking-widest text-slate-300">
+            —
+          </div>
         )}
 
+        {/* ✅ PRICES */}
+        <div className="mt-5 flex flex-wrap gap-2">
+          {finalPrices.length ? (
+            finalPrices.map((x) => (
+              <span
+                key={x.key}
+                className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-[11px] font-extrabold tracking-widest text-slate-700"
+              >
+                {x.label}
+                <span className="text-slate-900">AUD {x.value.toFixed(2)}</span>
+              </span>
+            ))
+          ) : (
+            <span className="text-xs font-extrabold tracking-widest text-slate-300">
+              NO PRICES
+            </span>
+          )}
+        </div>
 
-        <div className="mt-6 flex items-center justify-between pt-2 mt-auto">
-          <div className="text-sm font-black text-slate-900">
-            AUD {Number(it.price || 0).toFixed(2)}
-          </div>
-
+        <div className="mt-6 flex items-center justify-end pt-2 mt-auto">
           <div className="flex items-center gap-3">
             <button
               onClick={onEdit}

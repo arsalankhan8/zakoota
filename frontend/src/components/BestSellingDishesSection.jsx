@@ -56,6 +56,9 @@ export function DishCard({ item, onAddToCart }) {
     const img = item?.imageUrl;
     const name = item?.name || "BIG MAC";
     const desc = clampText(item?.description, 90);
+    const API = import.meta.env.VITE_API_URL;
+    const BASE = API?.endsWith("/api") ? API.slice(0, -4) : API;
+    const imgSrc = img ? (img.startsWith("http") ? img : `${BASE}${img}`) : "";
 
     return (
         <div className="group relative overflow-hidden rounded-[28px] min-h-[470px] bg-transparent">
@@ -73,18 +76,19 @@ export function DishCard({ item, onAddToCart }) {
             {/* Image */}
             <div className="relative z-10 h-[225px] flex items-end justify-center pt-6">
                 <img
-                    src={img}
+                    src={imgSrc}
                     alt={name}
                     className="h-[230px] w-auto object-contain drop-shadow-[0_20px_25px_rgba(0,0,0,0.18)] transition-transform duration-300 ease-out group-hover:translate-y-1"
                     draggable={false}
                     loading="lazy"
                 />
+
             </div>
 
             {/* Content */}
             <div className="relative z-10 px-7 pt-4 pb-6">
                 <div className="flex items-start justify-between gap-3">
-                    <h3 className="text-[20px] font-extrabold tracking-wide text-[#1b1b1b] uppercase">
+                    <h3 className="text-[24px] font-extrabold tracking-wide text-[#1b1b1b] uppercase">
                         {name}
                     </h3>
 
@@ -111,13 +115,37 @@ export function DishCard({ item, onAddToCart }) {
 
                 <div className="mt-7 flex items-end justify-between">
                     <div className="text-[22px] font-extrabold text-[#c81e1e]">
-                        {money(item?.price)}
+                        {(() => {
+                            const p = item?.prices || {};
+                            const list = [
+                                { label: "Small", v: Number(p.small) },
+                                { label: "Medium", v: Number(p.medium) },
+                                { label: "Large", v: Number(p.large) },
+                            ].filter((x) => Number.isFinite(x.v) && x.v > 0);
+
+                            // if prices exist -> show 1,2,3 labels
+                            if (list.length) {
+                                return (
+                                    <div className="flex flex-col gap-1">
+                                        {list.map((x) => (
+                                            <div key={x.label} className="text-[18px] font-extrabold text-[#c81e1e]">
+                                                {x.label}: {money(x.v)}
+                                            </div>
+                                        ))}
+                                    </div>
+                                );
+                            }
+
+                            // fallback old single price
+                            return money(item?.price);
+                        })()}
+
                     </div>
 
                     <button
                         type="button"
                         onClick={() => onAddToCart?.(item)}
-                        className="h-12 w-12 rounded-xl bg-[#0b7a3b] grid place-items-center shadow-[0_14px_28px_rgba(11,122,59,0.25)] active:scale-[0.98]"
+                        className="h-12 w-12 rounded-xl bg-[#0b7a3b] grid place-items-center active:scale-[0.98]"
                         aria-label="Add to cart"
                     >
                         <ShoppingBasket className="h-5 w-5 text-white" />
@@ -172,14 +200,14 @@ export default function BestSellingDishesSection({
     return (
         <section className="relative w-full bg-[#f4f1ea] overflow-hidden">
             {/* FULL-WIDTH background image */}
-<div className="pointer-events-none absolute left-1/2 top-0 w-screen -translate-x-1/2 hidden lg:block">
-  <img
-    src={bgImg}
-    alt=""
-    className="w-screen max-w-none object-contain h-auto"
-    draggable={false}
-  />
-</div>
+            <div className="pointer-events-none absolute left-1/2 top-0 w-screen -translate-x-1/2 hidden lg:block">
+                <img
+                    src={bgImg}
+                    alt=""
+                    className="w-screen max-w-none object-contain h-auto"
+                    draggable={false}
+                />
+            </div>
 
             {/* Content container */}
             <div className="relative mx-auto max-w-7xl sm:pt-16 pb-16 lg:pb-40">

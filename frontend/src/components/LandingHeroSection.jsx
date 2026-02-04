@@ -56,12 +56,40 @@ function LandingHeroSection() {
               className="mt-8 opacity-0 animate-fade-up"
               style={{ animationDelay: "0.65s" }}
             >
-              <button className="inline-flex items-center justify-center rounded-md bg-[#00833e] px-6 py-3 text-[16px] font-extrabold tracking-wide text-white shadow-[0_10px_30px_-15px_rgba(16,185,129,0.9)] hover:scale-[1.03] transition">
-                ORDER NOW
-                <span className="ml-2">
-                  <img src={rightArrow} alt="" />
-                </span>
-              </button>
+<button
+  className="
+    relative overflow-hidden
+    inline-flex items-center justify-center
+    rounded-md
+    px-6 py-3
+    text-[16px] font-extrabold tracking-wide text-white
+    bg-[#00833e]
+    shadow-[0_10px_30px_-15px_rgba(16,185,129,0.9)]
+    transition-transform
+    group
+  "
+>
+  {/* Sliding red layer */}
+  <span
+    className="
+      absolute inset-0
+      bg-[#d6362b]
+      translate-x-[-100%]
+      transition-transform
+      duration-[900ms]
+      ease-[cubic-bezier(0.22,1,0.36,1)]
+      will-change-transform
+      group-hover:translate-x-0
+    "
+  />
+
+  {/* Content */}
+  <span className="relative z-10 inline-flex items-center gap-2">
+    ORDER NOW
+    <img src={rightArrow} alt="" />
+  </span>
+</button>
+
             </div>
           </div>
 

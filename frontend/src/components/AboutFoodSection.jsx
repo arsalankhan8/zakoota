@@ -9,7 +9,7 @@ import houseIcon from "../assets/house.svg";
 import bikeIcon from "../assets/bike.svg";
 import bgFood from "../assets/four-food-white-bg-img.webp";
 
-function useInViewOnce(threshold = 0.4) {
+function useInViewOnce(threshold = 0.3) {
   const ref = useRef(null);
   const [visible, setVisible] = useState(false);
 
@@ -20,7 +20,7 @@ function useInViewOnce(threshold = 0.4) {
       ([entry]) => {
         if (entry.isIntersecting) {
           setVisible(true);
-          observer.disconnect(); // ✅ run only once
+          observer.disconnect(); 
         }
       },
       { threshold }
@@ -34,7 +34,7 @@ function useInViewOnce(threshold = 0.4) {
 }
 
 export default function AboutFoodSection() {
-  const [sectionRef, isVisible] = useInViewOnce(0.4);
+  const [sectionRef, isVisible] = useInViewOnce(0.3);
 
   const features = [
     { icon: burgerIcon, title: "A NEW LOOK ON\nTHE RIGHT FOOD!" },
@@ -81,14 +81,14 @@ export default function AboutFoodSection() {
 
           {/* RIGHT */}
           <div
-  className={[
-    "w-full transition-all ease-out",
-    isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10",
-  ].join(" ")}
-  style={{
-    transitionDuration: "700ms",
-    transitionDelay: isVisible ? "150ms" : "0ms",
-  }}
+            className={[
+              "w-full transition-all ease-out",
+              isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10",
+            ].join(" ")}
+            style={{
+              transitionDuration: "700ms",
+              transitionDelay: isVisible ? "150ms" : "0ms",
+            }}
           >
             <p className="text-[16px] sm:text-[18px] font-extrabold text-[#c33130]">
               ABOUT OUR FOOD
@@ -110,19 +110,19 @@ export default function AboutFoodSection() {
 
             {/* FEATURES */}
             <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-3 sm:gap-5">
-{features.map((f, idx) => (
-  <div
-    key={idx}
-    className={[
-      "flex items-center gap-4 sm:flex-col sm:items-start sm:gap-3",
-      "transition-all ease-out",
-      isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6",
-    ].join(" ")}
-    style={{
-      transitionDuration: "500ms",
-      transitionDelay: isVisible ? `${300 + idx * 120}ms` : "0ms",
-    }}
-  >
+              {features.map((f, idx) => (
+                <div
+                  key={idx}
+                  className={[
+                    "flex items-center gap-4 sm:flex-col sm:items-start sm:gap-3",
+                    "transition-all ease-out",
+                    isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6",
+                  ].join(" ")}
+                  style={{
+                    transitionDuration: "500ms",
+                    transitionDelay: isVisible ? `${300 + idx * 120}ms` : "0ms",
+                  }}
+                >
                   <img
                     src={f.icon}
                     alt=""

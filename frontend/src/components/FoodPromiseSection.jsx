@@ -1,7 +1,31 @@
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 // ✅ Left image
 import foodPromiseImg from "../assets/food-promise-img.webp";
+
+function useInViewOnce(threshold = 0.3) {
+  const ref = useRef(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    if (!ref.current || visible) return;
+
+    const obs = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setVisible(true);
+          obs.disconnect();
+        }
+      },
+      { threshold }
+    );
+
+    obs.observe(ref.current);
+    return () => obs.disconnect();
+  }, [visible, threshold]);
+
+  return [ref, visible];
+}
 
 export default function FoodPromiseSection() {
   const stats = [
@@ -9,15 +33,22 @@ export default function FoodPromiseSection() {
     { value: "580+", label: "DIFFERENT BURGERS" },
   ];
 
+  const [sectionRef, visible] = useInViewOnce(0.3);
+
   return (
-    <section className="relative w-full bg-[#F4F1EA] overflow-hidden ">
-      {/* Watermark text (diagonal) */}
-
-
+    <section
+      ref={sectionRef}
+      className="relative w-full bg-[#F4F1EA] overflow-hidden"
+    >
       <div className="mx-auto max-w-7xl px-6 pb-10 sm:pb-12 lg:pb-16">
         <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-2 lg:gap-14">
           {/* LEFT */}
-          <div className="relative">
+          <div
+            className={[
+              "relative transition-all duration-700 ease-out",
+              visible ? "opacity-100 translate-y-0 scale-100" : "opacity-0 translate-y-10 scale-[0.98]",
+            ].join(" ")}
+          >
             <div className="relative lg:mx-auto w-full max-w-[640px] lg:max-w-none">
               <img
                 src={foodPromiseImg}
@@ -29,7 +60,12 @@ export default function FoodPromiseSection() {
           </div>
 
           {/* RIGHT */}
-          <div className="w-full">
+          <div
+            className={[
+              "w-full transition-all duration-700 ease-out delay-150",
+              visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10",
+            ].join(" ")}
+          >
             <p className="text-[16px] sm:text-[18px] font-extrabold text-[#c33130]">
               OUR FOOD PROMISE
             </p>
@@ -46,7 +82,15 @@ export default function FoodPromiseSection() {
             {/* STATS */}
             <div className="mt-10 grid grid-cols-2 gap-10 sm:gap-14 max-w-[520px]">
               {stats.map((s, idx) => (
-                <div key={idx}>
+                <div
+                  key={idx}
+                  className={[
+                    "transition-all duration-700 ease-out",
+                    visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6",
+                    // stagger stats a bit
+                    idx === 0 ? "delay-300" : "delay-400",
+                  ].join(" ")}
+                >
                   <p className="text-[44px] sm:text-[56px] font-black text-[#c33130] leading-[1]">
                     {s.value}
                   </p>

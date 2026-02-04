@@ -1,8 +1,8 @@
 import React from "react";
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
-
 import Login from "./pages/Login.jsx";
 import LandingPage from "./pages/LandingPage.jsx";
+import MenuPage from "./pages/Menu.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
 import Categories from "./pages/Categories.jsx";
 import Items from "./pages/Items.jsx";
@@ -20,7 +20,6 @@ export default function App() {
 
   const isAdmin = location.pathname.startsWith("/admin");
   const isLogin = location.pathname === "/login";
-
   const isPublic = !isAdmin && !isLogin;
 
   return (
@@ -29,20 +28,20 @@ export default function App() {
         <div className="public-site">
           <Navbar />
 
+          {/* ✅ Add all public routes here */}
           <Routes>
-            {/* 🌐 Public pages */}
             <Route path="/" element={<LandingPage />} />
+            <Route path="/menu" element={<MenuPage />} />
           </Routes>
 
           <Footer />
         </div>
       )}
 
-      {/* 🔐 Login */}
+      {/* ✅ Login + Admin */}
       <Routes>
         <Route path="/login" element={<Login />} />
 
-        {/* 🔒 Admin */}
         <Route
           path="/admin"
           element={
@@ -55,8 +54,6 @@ export default function App() {
           <Route path="categories" element={<Categories />} />
           <Route path="items" element={<Items />} />
         </Route>
-
-        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </>
   );

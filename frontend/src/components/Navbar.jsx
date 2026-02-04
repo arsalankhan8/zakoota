@@ -7,9 +7,9 @@ import IgIcon from "../assets/instagram-icon.svg?react";
 import YtIcon from "../assets/youtube-icon.svg?react";
 
 
-const SocialIcon = ({ href="#", label, children, className="" }) => (
+const SocialIcon = ({ href = "#", label, children, className = "" }) => (
   <a href={href} aria-label={label} target="_blank" rel="noreferrer"
-     className={`inline-flex items-center justify-center transition ${className}`}>
+    className={`inline-flex items-center justify-center transition ${className}`}>
     {children}
   </a>
 );
@@ -86,19 +86,19 @@ export default function Navbar() {
             </div>
 
             {/* Right */}
-<div className="flex items-center justify-end gap-4 text-white">
-<SocialIcon label="Facebook" href="#" className="text-white hover:opacity-90">
-  <FbIcon className="h-[14px] w-auto" />
-</SocialIcon>
-<SocialIcon label="Instagram" href="#" className="text-white hover:opacity-90">
-  <IgIcon className="h-[14px] w-auto" />
-</SocialIcon>
-<SocialIcon label="YouTube" href="#" className="text-white hover:opacity-90">
-  <YtIcon className="h-[14px] w-auto" />
-</SocialIcon>
+            <div className="flex items-center justify-end gap-4 text-white">
+              <SocialIcon label="Facebook" href="#" className="text-white hover:opacity-90">
+                <FbIcon className="h-[14px] w-auto" />
+              </SocialIcon>
+              <SocialIcon label="Instagram" href="#" className="text-white hover:opacity-90">
+                <IgIcon className="h-[14px] w-auto" />
+              </SocialIcon>
+              <SocialIcon label="YouTube" href="#" className="text-white hover:opacity-90">
+                <YtIcon className="h-[14px] w-auto" />
+              </SocialIcon>
 
 
-</div>
+            </div>
 
           </div>
         </div>
@@ -144,8 +144,10 @@ export default function Navbar() {
               >
                 SHOP
               </NavLink>
+              <NavLink to="/">
+                <img src={logo} alt="Fazfood" className="h-[44px] object-contain" />
+              </NavLink>
 
-              <img src={logo} alt="Fazfood" className="h-[44px] object-contain" />
 
               <NavLink
                 to="/about"
@@ -164,11 +166,14 @@ export default function Navbar() {
 
             {/* ✅ Mobile logo visible up to 1024px */}
             <div className="lg:hidden flex-1 flex justify-start">
-              <img
-                src={logo}
-                alt="Fazfood"
-                className="h-[44px] max-[1380px]:h-[40px] object-contain flex-shrink-0"
-              />
+              <NavLink to="/">
+                <img
+                  src={logo}
+                  alt="Fazfood"
+                  className="h-[44px] max-[1380px]:h-[40px] object-contain flex-shrink-0"
+                />
+              </NavLink>
+
             </div>
 
 
@@ -179,11 +184,40 @@ export default function Navbar() {
               {/* ✅ Hamburger icon on right (mobile/tablet only) */}
 
 
-              <button className="bg-[#d6362b] text-white h-[42px] sm:h-[44px] px-4 sm:px-7 rounded-xl flex items-center gap-2 sm:gap-3 text-[14px] sm:text-[16px] font-extrabold uppercase shadow-[0_10px_24px_-14px_rgba(214,54,43,0.7)] hover:bg-[#bf2f26] transition tracking-[1px] whitespace-nowrap">
-                <Bike size={18} />
-                <span className="hidden min-[380px]:inline">ORDER NOW</span>
-                <span className="min-[380px]:hidden">ORDER</span>
+
+              <button
+                className="
+    relative overflow-hidden
+    flex items-center justify-center gap-2
+    font-extrabold uppercase tracking-[1px]
+    text-white
+    bg-[#d6362b]
+    shadow-[0_10px_24px_-14px_rgba(214,54,43,0.7)]
+    group
+     h-[42px] sm:h-[44px] px-4 sm:px-7 rounded-xl 
+  "
+              >
+                {/* Green hover fill */}
+                <span
+                  className="
+      absolute inset-0
+      bg-[#00833e]
+      translate-x-[-100%]
+      transition-transform
+      duration-[900ms]
+      ease-[cubic-bezier(0.22,1,0.36,1)]
+      will-change-transform
+      group-hover:translate-x-0
+    "
+                />
+
+                <span className="relative z-10 flex items-center gap-2">
+                  <Bike size={18} />
+                  ORDER NOW
+                </span>
               </button>
+
+
               <button
                 className="lg:hidden inline-flex h-[42px] sm:h-[44px] w-[42px] sm:w-[44px] items-center justify-center rounded-xl border border-black/10 bg-white/50 hover:bg-white transition"
                 onClick={() => setOpen(true)}
@@ -267,34 +301,61 @@ export default function Navbar() {
 
             {/* actions */}
             <div className="mt-5 grid grid-cols-1 gap-3">
-              <button className="bg-[#d6362b] text-white h-12 rounded-2xl flex items-center justify-center gap-2 font-extrabold uppercase tracking-[1px] shadow-[0_10px_24px_-14px_rgba(214,54,43,0.7)] hover:bg-[#bf2f26] transition">
-                <Bike size={18} />
-                ORDER NOW
+              <button
+                className="
+    relative overflow-hidden
+    h-12 rounded-2xl
+    flex items-center justify-center gap-2
+    font-extrabold uppercase tracking-[1px]
+    text-white
+    bg-[#d6362b]
+    shadow-[0_10px_24px_-14px_rgba(214,54,43,0.7)]
+    transition
+    group
+  "
+              >
+                {/* Hover fill layer */}
+                <span
+                  className="
+      absolute inset-0
+   bg-[#00833e]
+      translate-x-[-100%]
+      transition-transform duration-300 ease-out
+      group-hover:translate-x-0
+    "
+                />
+
+                {/* Content (above fill) */}
+                <span className="relative z-10 flex items-center gap-2">
+                  <Bike size={18} />
+                  ORDER NOW
+                </span>
               </button>
+
             </div>
 
             {/* socials */}
-<div className="mt-6 flex items-center gap-4">
-  <span className="text-[12px] font-extrabold uppercase tracking-[0.22em] text-black/50">
-    FOLLOW
-  </span>
+            <div className="mt-6 flex items-center gap-4">
+              <span className="text-[12px] font-extrabold uppercase tracking-[0.22em] text-black/50">
+                FOLLOW
+              </span>
 
-  <div className="flex items-center gap-4">
-<SocialIcon label="Facebook" href="#" className="text-black/80 hover:opacity-80">
-  <FbIcon className="h-[14px] w-auto" />
-</SocialIcon>
-<SocialIcon label="Instagram" href="#" className="text-black/80 hover:opacity-80">
-  <IgIcon className="h-[14px] w-auto" />
-</SocialIcon>
-<SocialIcon label="YouTube" href="#" className="text-black/80 hover:opacity-80">
-  <YtIcon className="h-[14px] w-auto" />
-</SocialIcon>
+              <div className="flex items-center gap-4">
+                <SocialIcon label="Facebook" href="#" className="text-black/80 hover:opacity-80">
+                  <FbIcon className="h-[14px] w-auto" />
+                </SocialIcon>
+                <SocialIcon label="Instagram" href="#" className="text-black/80 hover:opacity-80">
+                  <IgIcon className="h-[14px] w-auto" />
+                </SocialIcon>
+                <SocialIcon label="YouTube" href="#" className="text-black/80 hover:opacity-80">
+                  <YtIcon className="h-[14px] w-auto" />
+                </SocialIcon>
 
-  </div>
-</div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </header>
- );
+  );
 }

@@ -8,6 +8,8 @@ import authRoutes from "./routes/auth.js";
 import categoryRoutes from "./routes/categories.js";
 import itemRoutes from "./routes/items.js";
 
+import path from "path";
+import { fileURLToPath } from "url";
 dotenv.config();
 
 const app = express();
@@ -15,20 +17,22 @@ const app = express();
 //  Add this if hosted behind proxy (safe to keep)
 app.set("trust proxy", 1);
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// serve uploaded files
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
 app.use(helmet());
 app.use(morgan("dev"));
 app.use(express.json({ limit: "2mb" }));
 
 app.use(
   cors({
-    origin: [
-      "http://localhost:5173",
- "http://192.168.18.124:5173",
-    ],
+    origin: ["http://localhost:5173", "http://192.168.18.124:5173"],
     credentials: true,
   })
 );
-
 
 app.get("/api/health", (req, res) => res.json({ ok: true }));
 
@@ -41,10 +45,9 @@ const port = process.env.PORT || 5000;
 
 connectDB(process.env.MONGO_URI)
   .then(() => {
-app.listen(port, "0.0.0.0", () => {
-  console.log(`✅ API running on http://0.0.0.0:${port}`);
-});
-
+    app.listen(port, "0.0.0.0", () => {
+      console.log(`✅ API running on http://0.0.0.0:${port}`);
+    });
   })
   .catch((err) => {
     console.error("❌ DB error:", err.message);
