@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from "react";
 import fastFoodBanner from "../assets/fast-food-banner.webp";
 import burgerBanner from "../assets/burger-banner.webp";
 import pizzaBanner from "../assets/pizza-banner.webp";
-
 import rightArrow from "../assets/btn-arrow-right.svg";
 
 const banners = [
@@ -58,7 +57,6 @@ function useInViewOnce(threshold = 0.3) {
 
   return [ref, visible];
 }
-
 
 export default function PromoBanners() {
     return (

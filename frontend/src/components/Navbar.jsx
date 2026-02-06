@@ -107,7 +107,7 @@ export default function Navbar() {
       {/* ─────────────── Main Navbar ─────────────── */}
       <div className="w-full bg-[#f7f2e9] border-b border-black/10">
         <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-10">
-          <div className="h-[76px] sm:h-[86px] lg:h-[96px] flex items-center justify-between gap-3">
+          <div className="h-[76px] sm:h-[86px] lg:h-[96px] flex items-center justify-between">
             {/* Left: Mobile Menu + Desktop Support */}
             <div className="flex items-center gap-3 lg:gap-4 lg:min-w-[320px] max-[1380px]:lg:min-w-[260px]">
 
@@ -145,7 +145,7 @@ export default function Navbar() {
                 SHOP
               </NavLink>
               <NavLink to="/">
-                <img src={logo} alt="Fazfood" className="h-[44px] object-contain" />
+                <img src={logo} alt="Fazfood" className="w-[150px] mt-[-12px]  object-contain" />
               </NavLink>
 
 
@@ -170,7 +170,7 @@ export default function Navbar() {
                 <img
                   src={logo}
                   alt="Fazfood"
-                  className="h-[44px] max-[1380px]:h-[40px] object-contain flex-shrink-0"
+                  className="w-[120px] object-contain flex-shrink-0"
                 />
               </NavLink>
 
@@ -251,7 +251,7 @@ export default function Navbar() {
           <div className="p-4">
             {/* header */}
             <div className="flex items-center justify-between">
-              <img src={logo} alt="Fazfood" className="h-[38px] object-contain" />
+              <img src={logo} alt="Fazfood" className="w-[150px] object-contain" />
               <button
                 className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-black/10 bg-white/50 hover:bg-white transition"
                 onClick={() => setOpen(false)}

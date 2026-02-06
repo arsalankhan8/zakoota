@@ -15,9 +15,7 @@ function LandingPage() {
       <AboutFoodSection />
       <PromoBanners />
       <PopularDishesMarquee />
-      <BestSellingDishesSection
-        limit={4}
-      />
+      <BestSellingDishesSection />
       <FoodPromiseSection />
       <PromoBannersSecondSection />
     </main>

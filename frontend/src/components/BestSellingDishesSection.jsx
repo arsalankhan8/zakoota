@@ -1,7 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import bgImg from "../assets/best-selling-dishes-bg.webp";
 import { api } from "../api/api.js";
-import { Heart, ShoppingBasket, Star } from "lucide-react";
+import {
+    Heart,
+    ShoppingBasket,
+    Star,
+    ChevronLeft,
+    ChevronRight,
+} from "lucide-react";
 
 function money(n) {
     const num = Number(n || 0);
@@ -22,7 +28,9 @@ function Stars({ value = 5 }) {
                     key={idx}
                     className={[
                         "h-4 w-4",
-                        filled ? "fill-[#f59e0b] stroke-[#f59e0b]" : "stroke-[#f59e0b]/40",
+                        filled
+                            ? "fill-[#f59e0b] stroke-[#f59e0b]"
+                            : "stroke-[#f59e0b]/40",
                     ].join(" ")}
                 />
             ))}
@@ -56,33 +64,34 @@ export function DishCard({ item, onAddToCart }) {
     const img = item?.imageUrl;
     const name = item?.name || "BIG MAC";
     const desc = clampText(item?.description, 90);
+
     const API = import.meta.env.VITE_API_URL;
     const BASE = API?.endsWith("/api") ? API.slice(0, -4) : API;
     const imgSrc = img ? (img.startsWith("http") ? img : `${BASE}${img}`) : "";
 
     return (
-        <div className="group relative overflow-hidden rounded-[28px] min-h-[470px] bg-transparent">
-
+        <div className="group relative overflow-hidden rounded-[28px] min-h-[-webkit-fill-available] bg-transparent">
             {/* White panel */}
-            <div className="
-    absolute inset-x-0 bottom-0
-    min-h-[68%]
-    group-hover:min-h-full
-    rounded-[28px]
-    bg-white
-    transition-all duration-300 ease-out
-  " />
+            <div
+                className="
+          absolute inset-x-0 bottom-0
+          min-h-[68%]
+          group-hover:min-h-full
+          rounded-[28px]
+          bg-white
+          transition-all duration-300 ease-out
+        "
+            />
 
             {/* Image */}
             <div className="relative z-10 h-[225px] flex items-end justify-center pt-6">
                 <img
                     src={imgSrc}
                     alt={name}
-                    className="h-[230px] w-auto object-contain drop-shadow-[0_20px_25px_rgba(0,0,0,0.18)] transition-transform duration-300 ease-out group-hover:translate-y-1"
+                    className="h-[230px] w-auto object-contain transition-transform duration-300 ease-out group-hover:translate-y-1"
                     draggable={false}
                     loading="lazy"
                 />
-
             </div>
 
             {/* Content */}
@@ -101,7 +110,9 @@ export function DishCard({ item, onAddToCart }) {
                         <Heart
                             className={[
                                 "h-5 w-5 transition",
-                                fav ? "fill-[#e11d48] stroke-[#e11d48]" : "stroke-black/25",
+                                fav
+                                    ? "fill-[#e11d48] stroke-[#e11d48]"
+                                    : "stroke-black/25",
                             ].join(" ")}
                         />
                     </button>
@@ -123,12 +134,14 @@ export function DishCard({ item, onAddToCart }) {
                                 { label: "Large", v: Number(p.large) },
                             ].filter((x) => Number.isFinite(x.v) && x.v > 0);
 
-                            // if prices exist -> show 1,2,3 labels
                             if (list.length) {
                                 return (
                                     <div className="flex flex-col gap-1">
                                         {list.map((x) => (
-                                            <div key={x.label} className="text-[18px] font-extrabold text-[#c81e1e]">
+                                            <div
+                                                key={x.label}
+                                                className="text-[18px] font-extrabold text-[#c81e1e]"
+                                            >
                                                 {x.label}: {money(x.v)}
                                             </div>
                                         ))}
@@ -136,10 +149,8 @@ export function DishCard({ item, onAddToCart }) {
                                 );
                             }
 
-                            // fallback old single price
                             return money(item?.price);
                         })()}
-
                     </div>
 
                     <button
@@ -158,7 +169,7 @@ export function DishCard({ item, onAddToCart }) {
 
 export default function BestSellingDishesSection({
     title = "BEST SELLING DISHES",
-    limit = 4,
+    limit = 14,
     onAddToCart,
 }) {
     const [items, setItems] = useState([]);
@@ -197,6 +208,64 @@ export default function BestSellingDishesSection({
         return filtered.slice(0, limit);
     }, [items, limit]);
 
+    // ✅ responsive rules:
+    // >= 1280 => 4 cards, arrows on sides
+    // < 1280 and >= 556 => 3 cards (if <1024 => 2 cards), arrows at bottom
+    // < 556 => 1 card, arrows at bottom
+    const [perPage, setPerPage] = useState(4);
+    const [arrowsDown, setArrowsDown] = useState(false);
+
+    useEffect(() => {
+        const apply = () => {
+            const w = window.innerWidth;
+
+            if (w < 556) {
+                setPerPage(1);
+                setArrowsDown(true);
+                return;
+            }
+
+            if (w < 1024) {
+                setPerPage(2);
+                setArrowsDown(true);
+                return;
+            }
+
+            if (w < 1380) {
+                setPerPage(3);
+                setArrowsDown(true);
+                return;
+            }
+
+            // >= 1280
+            setPerPage(4);
+            setArrowsDown(false);
+        };
+
+        apply();
+        window.addEventListener("resize", apply);
+        return () => window.removeEventListener("resize", apply);
+    }, []);
+
+    const [page, setPage] = useState(0);
+
+    const pages = useMemo(() => {
+        const chunks = [];
+        for (let i = 0; i < bestSellers.length; i += perPage) {
+            chunks.push(bestSellers.slice(i, i + perPage));
+        }
+        return chunks;
+    }, [bestSellers, perPage]);
+
+    const totalPages = Math.max(1, pages.length);
+
+    useEffect(() => {
+        setPage(0);
+    }, [perPage, bestSellers.length]);
+
+    const goPrev = () => setPage((p) => Math.max(0, p - 1));
+    const goNext = () => setPage((p) => Math.min(totalPages - 1, p + 1));
+
     return (
         <section className="relative w-full bg-[#f4f1ea] overflow-hidden">
             {/* FULL-WIDTH background image */}
@@ -209,7 +278,6 @@ export default function BestSellingDishesSection({
                 />
             </div>
 
-            {/* Content container */}
             <div className="relative mx-auto max-w-7xl sm:pt-16 pb-16 lg:pb-40">
                 <h2 className="text-center text-4xl sm:text-6xl font-extrabold tracking-wide text-[#1b1b1b]">
                     {title}
@@ -217,7 +285,7 @@ export default function BestSellingDishesSection({
 
                 <div className="mt-10 sm:mt-12 px-5">
                     {err ? (
-                        <div className="mx-auto max-w-xl rounded-2xl bg-white/80  py-4 text-center text-sm text-red-600 shadow">
+                        <div className="mx-auto max-w-xl rounded-2xl bg-white/80 py-4 text-center text-sm text-red-600 shadow">
                             {err}
                         </div>
                     ) : null}
@@ -240,32 +308,94 @@ export default function BestSellingDishesSection({
                             </p>
                         </div>
                     ) : (
-                        <>
-                            {/* Desktop grid */}
-                            <div className="hidden px-5 sm:grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-                                {bestSellers.map((item) => (
-                                    <DishCard
-                                        key={item?._id || item?.id}
-                                        item={item}
-                                        onAddToCart={onAddToCart}
-                                    />
-                                ))}
-                            </div>
-
-                            {/* Mobile horizontal scroll */}
-                            <div className="sm:hidden">
-                                <div className="flex gap-5 overflow-x-auto pb-3 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-                                    {bestSellers.map((item) => (
-                                        <div
-                                            key={item?._id || item?.id}
-                                            className="min-w-[78%] max-w-[78%] flex-shrink-0"
-                                        >
-                                            <DishCard item={item} onAddToCart={onAddToCart} />
+                        <div className="relative px-5">
+                            {/* CLIP AREA */}
+                            <div className="overflow-hidden">
+                                {/* TRACK */}
+                                <div
+                                    className="flex transition-transform duration-500 ease-in-out will-change-transform"
+                                    style={{ transform: `translateX(-${page * 100}%)` }}
+                                >
+                                    {pages.map((group, idx) => (
+                                        <div key={idx} className="w-full shrink-0">
+                                            {/* PAGE GRID */}
+                                            <div
+                                                className={[
+                                                    "grid gap-6",
+                                                    perPage === 1
+                                                        ? "grid-cols-1 place-items-center"
+                                                        : "",
+                                                    perPage === 2 ? "grid-cols-2" : "",
+                                                    perPage === 3 ? "grid-cols-3" : "",
+                                                    perPage === 4 ? "grid-cols-2 lg:grid-cols-4" : "",
+                                                ].join(" ")}
+                                            >
+                                                {group.map((item) => (
+                                                    <div
+                                                        key={item?._id || item?.id}
+                                                        className={perPage === 1 ? "w-full max-w-[420px]" : ""}
+                                                    >
+                                                        <DishCard item={item} onAddToCart={onAddToCart} />
+                                                    </div>
+                                                ))}
+                                            </div>
                                         </div>
                                     ))}
                                 </div>
                             </div>
-                        </>
+
+                            {/* ARROWS ON SIDES (>=1280 only) */}
+                            {!arrowsDown ? (
+                                <>
+                                    <button
+                                        type="button"
+                                        onClick={goPrev}
+                                        disabled={page === 0}
+                                        className="absolute top-1/2 -translate-y-1/2 -left-[60px] h-12 w-12 rounded-full bg-white shadow-lg grid place-items-center disabled:opacity-40 disabled:cursor-not-allowed z-20"
+                                        aria-label="Previous"
+                                    >
+                                        <ChevronLeft className="h-6 w-6" />
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        onClick={goNext}
+                                        disabled={page >= totalPages - 1}
+                                        className="absolute top-1/2 -translate-y-1/2 -right-[60px] h-12 w-12 rounded-full bg-white shadow-lg grid place-items-center disabled:opacity-40 disabled:cursor-not-allowed z-20"
+                                        aria-label="Next"
+                                    >
+                                        <ChevronRight className="h-6 w-6" />
+                                    </button>
+                                </>
+                            ) : (
+                                /* ARROWS DOWN (<1280) */
+                                <div className="mt-6 flex items-center justify-center gap-5">
+                                    <button
+                                        type="button"
+                                        onClick={goPrev}
+                                        disabled={page === 0}
+                                        className="h-12 w-12 rounded-full bg-white shadow-lg grid place-items-center disabled:opacity-40 disabled:cursor-not-allowed"
+                                        aria-label="Previous"
+                                    >
+                                        <ChevronLeft className="h-6 w-6" />
+                                    </button>
+
+                                    <div className="text-sm font-semibold text-black/60">
+                                        {page + 1} / {totalPages}
+                                    </div>
+
+                                    <button
+                                        type="button"
+                                        onClick={goNext}
+                                        disabled={page >= totalPages - 1}
+                                        className="h-12 w-12 rounded-full bg-white shadow-lg grid place-items-center disabled:opacity-40 disabled:cursor-not-allowed"
+                                        aria-label="Next"
+                                    >
+                                        <ChevronRight className="h-6 w-6" />
+                                    </button>
+                                </div>
+                            )}
+                        </div>
                     )}
                 </div>
             </div>
