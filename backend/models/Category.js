@@ -6,6 +6,7 @@ const categorySchema = new mongoose.Schema(
     name: { type: String, required: true, trim: true },
     sortOrder: { type: Number, default: 0 },
     isActive: { type: Boolean, default: true },
+    icon: { type: String }, // Store the filename/path here
   },
   { timestamps: true }
 );

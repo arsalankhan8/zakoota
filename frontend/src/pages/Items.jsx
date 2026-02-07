@@ -1,15 +1,25 @@
+// src > pages > Items.jsx
+
 import { useEffect, useState, useMemo } from "react";
 import { api } from "../api/api";
 import CreateItemModal from "../modals/CreateItemModal";
 import EditItemModal from "../modals/EditItemModal";
 import ConfirmModal from "../modals/ConfirmModal";
-import { Plus, Pencil, Trash2, ExternalLink, Flame,   Layers,   } from "lucide-react";
+import {
+  Plus,
+  Pencil,
+  Trash2,
+  ExternalLink,
+  Flame,
+  Layers,
+  AlertTriangle,
+  RefreshCw,
+} from "lucide-react";
 import { Filter } from "lucide-react";
 
 export default function Items() {
   const API = import.meta.env.VITE_API_URL;
   const BASE = API?.endsWith("/api") ? API.slice(0, -4) : API;
-
 
   const [items, setItems] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -38,7 +48,8 @@ export default function Items() {
       const msg = e.response.data?.message;
 
       if (status === 401) return msg || "Unauthorized. Please login again.";
-      if (status === 403) return msg || "You don’t have permission to view this.";
+      if (status === 403)
+        return msg || "You don’t have permission to view this.";
       if (status === 404) return msg || "Endpoint not found (404).";
       if (status >= 500) return msg || "Server error. Please try again.";
       return msg || `Request failed (${status}).`;
@@ -50,8 +61,6 @@ export default function Items() {
 
     return e?.message || "Something went wrong.";
   }
-
-
 
   async function load() {
     setLoading(true);
@@ -280,7 +289,7 @@ export default function Items() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 min-w-[1440px]:grid-cols-4 gap-4 sm:gap-6">
                   {catItems.map((it) => (
                     <Card
                       key={it._id}
@@ -289,7 +298,6 @@ export default function Items() {
                       onEdit={() => startEdit(it)}
                       onDelete={() => askDelete(it)}
                     />
-
                   ))}
                 </div>
               </section>
@@ -323,7 +331,6 @@ export default function Items() {
                     onDelete={() => askDelete(it)}
                   />
                 ))}
-
               </div>
             </section>
           )}
@@ -351,29 +358,23 @@ export default function Items() {
         initialValues={
           editTarget
             ? {
-              name: editTarget.name || "",
-              category: editTarget.category?._id || editTarget.category || "",
-              description: editTarget.description || "",
-              prices: editTarget.prices
-                ? {
-                  small: Number(editTarget.prices.small || 0),
-                  medium: Number(editTarget.prices.medium || 0),
-                  large: Number(editTarget.prices.large || 0),
-                }
-                : {
-                  // legacy fallback
-                  small: Number(editTarget.price || 0),
-                  medium: 0,
-                  large: 0,
-                },
-              externalUrl: editTarget.externalUrl || "",
-              isLive: !!editTarget.isLive,
-              isBestSeller: !!editTarget.isBestSeller,
-              imageUrl: editTarget.imageUrl || "",
-            }
+                name: editTarget.name || "",
+                category: editTarget.category?._id || editTarget.category || "",
+                description: editTarget.description || "",
+                prices:
+                  Array.isArray(editTarget.prices) && editTarget.prices.length
+                    ? editTarget.prices
+                    : editTarget.price
+                    ? [{ label: "PRICE", amount: Number(editTarget.price) }]
+                    : [{ label: "", amount: 0 }],
+
+                externalUrl: editTarget.externalUrl || "",
+                isLive: !!editTarget.isLive,
+                isBestSeller: !!editTarget.isBestSeller,
+                imageUrl: editTarget.imageUrl || "",
+              }
             : {}
         }
-
         onSave={saveEdit}
         loading={editing}
       />
@@ -407,9 +408,10 @@ function safeHost(url) {
 
   try {
     // if user forgot https:// add it
-    const fixed = url.startsWith("http://") || url.startsWith("https://")
-      ? url
-      : `https://${url}`;
+    const fixed =
+      url.startsWith("http://") || url.startsWith("https://")
+        ? url
+        : `https://${url}`;
 
     const u = new URL(fixed);
     return u.hostname.replace("www.", "").toUpperCase();
@@ -426,10 +428,10 @@ function safeHref(url) {
     : `https://${url}`;
 }
 
-
 function Card({ it, onEdit, onDelete, base = "" }) {
   const img = it.imageUrl;
-  const joinUrl = (a, b) => `${String(a).replace(/\/$/, "")}/${String(b).replace(/^\//, "")}`;
+  const joinUrl = (a, b) =>
+    `${String(a).replace(/\/$/, "")}/${String(b).replace(/^\//, "")}`;
   // ✅ build correct image src
   const imgSrc = img
     ? img.startsWith("http")
@@ -437,22 +439,12 @@ function Card({ it, onEdit, onDelete, base = "" }) {
       : joinUrl(base, img)
     : null;
 
-
-  // ✅ normalize prices (support new + old schema)
-  const p = it.prices || {};
-  const priceList = [
-    { key: "small", label: "SMALL", value: Number(p.small) },
-    { key: "medium", label: "MEDIUM", value: Number(p.medium) },
-    { key: "large", label: "LARGE", value: Number(p.large) },
-  ].filter((x) => Number.isFinite(x.value) && x.value > 0);
-
-  // fallback old single price
-  const fallbackPrice =
-    !priceList.length && Number(it.price) > 0
-      ? [{ key: "single", label: "PRICE", value: Number(it.price) }]
+  const finalPrices =
+    Array.isArray(it.prices) && it.prices.length
+      ? it.prices.filter((p) => Number.isFinite(p.amount) && p.amount > 0)
+      : it.price
+      ? [{ label: "PRICE", amount: Number(it.price) }]
       : [];
-
-  const finalPrices = priceList.length ? priceList : fallbackPrice;
 
   return (
     <div className="bg-white rounded-3xl border border-slate-100 overflow-hidden shadow-sm flex flex-col h-full">
@@ -522,13 +514,15 @@ function Card({ it, onEdit, onDelete, base = "" }) {
         {/* ✅ PRICES */}
         <div className="mt-5 flex flex-wrap gap-2">
           {finalPrices.length ? (
-            finalPrices.map((x) => (
+            finalPrices.map((p, i) => (
               <span
-                key={x.key}
+                key={i}
                 className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-[11px] font-extrabold tracking-widest text-slate-700"
               >
-                {x.label}
-                <span className="text-slate-900">AUD {x.value.toFixed(2)}</span>
+                {p.label}
+                <span className="text-slate-900">
+                  AUD {p.amount.toFixed(2)}
+                </span>
               </span>
             ))
           ) : (

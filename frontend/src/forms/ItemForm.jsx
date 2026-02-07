@@ -1,3 +1,5 @@
+// src > forms > ItemForm.jsx
+
 import { useEffect, useRef, useState } from "react";
 import { ImageUp } from "lucide-react";
 
@@ -23,7 +25,7 @@ export default function ItemForm({
     name: "",
     category: "",
     description: "",
-    prices: { small: 0, medium: 0, large: 0 },
+    prices: [{ label: "", amount: 0 }],
     externalUrl: "",
     isLive: true,
     isBestSeller: false,
@@ -50,15 +52,12 @@ export default function ItemForm({
     setForm((p) => ({
       ...p,
       ...initialValues,
-      prices: {
-        small: initialValues?.prices?.small ?? p.prices?.small ?? 0,
-        medium: initialValues?.prices?.medium ?? p.prices?.medium ?? 0,
-        large: initialValues?.prices?.large ?? p.prices?.large ?? 0,
-      },
+      prices: Array.isArray(initialValues?.prices)
+        ? initialValues.prices
+        : [{ label: "", amount: 0 }],
     }));
 
     originalImageUrlRef.current = initialValues?.imageUrl || "";
-    // NOTE: do not set uploadedFileKey here (only set it when we upload a new one)
   }, [initialValues]);
 
   // cleanup preview blob url
@@ -200,7 +199,9 @@ export default function ItemForm({
           <Field label="CATEGORY">
             <select
               value={form.category || ""}
-              onChange={(e) => setForm((p) => ({ ...p, category: e.target.value }))}
+              onChange={(e) =>
+                setForm((p) => ({ ...p, category: e.target.value }))
+              }
               className="w-full rounded-2xl border border-slate-200 px-4 sm:px-5 py-3.5 sm:py-4 text-sm font-semibold outline-none focus:ring-4 focus:ring-orange-100"
             >
               <option value="">Uncategorized</option>
@@ -215,7 +216,9 @@ export default function ItemForm({
           <Field label="DESCRIPTION">
             <textarea
               value={form.description}
-              onChange={(e) => setForm((p) => ({ ...p, description: e.target.value }))}
+              onChange={(e) =>
+                setForm((p) => ({ ...p, description: e.target.value }))
+              }
               placeholder="Describe the flavors..."
               rows={4}
               className="w-full rounded-2xl border border-slate-200 px-4 sm:px-5 py-3.5 sm:py-4 text-sm font-semibold outline-none focus:ring-4 focus:ring-orange-100 resize-none"
@@ -223,66 +226,80 @@ export default function ItemForm({
           </Field>
 
           <Field label="PRICES (AUD)">
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              {/* SMALL */}
-              <div className="grid gap-1">
-                <div className="text-[10px] font-extrabold tracking-[0.18em] text-slate-400">
-                  SMALL
-                </div>
-                <input
-                  type="number"
-                  inputMode="decimal"
-                  value={form.prices?.small ?? 0}
-                  onChange={(e) =>
-                    setForm((p) => ({
-                      ...p,
-                      prices: { ...p.prices, small: Number(e.target.value || 0) },
-                    }))
-                  }
-                  placeholder="0"
-                  className="w-full rounded-2xl border border-slate-200 px-4 sm:px-5 py-3.5 sm:py-4 text-sm font-semibold outline-none focus:ring-4 focus:ring-orange-100"
-                />
-              </div>
+            <div className="space-y-4">
+              {form.prices.map((p, i) => (
+                <div
+                  key={i}
+                  className="rounded-2xl border border-slate-200 bg-white p-4 space-y-3"
+                >
+                  {/* Label Field */}
+                  <div>
+                    <div className="text-[11px] font-extrabold tracking-[0.22em] text-slate-400">
+                      LABEL
+                    </div>
+                    <input
+                      placeholder="Single, Small, 6 pcs..."
+                      value={p.label}
+                      onChange={(e) => {
+                        const copy = [...form.prices];
+                        copy[i].label = e.target.value;
+                        setForm({ ...form, prices: copy });
+                      }}
+                      className="mt-2 w-full rounded-2xl border border-slate-200 px-4 py-3.5 text-sm font-semibold outline-none focus:ring-4 focus:ring-orange-100"
+                    />
+                  </div>
 
-              {/* MEDIUM */}
-              <div className="grid gap-1">
-                <div className="text-[10px] font-extrabold tracking-[0.18em] text-slate-400">
-                  MEDIUM
-                </div>
-                <input
-                  type="number"
-                  inputMode="decimal"
-                  value={form.prices?.medium ?? 0}
-                  onChange={(e) =>
-                    setForm((p) => ({
-                      ...p,
-                      prices: { ...p.prices, medium: Number(e.target.value || 0) },
-                    }))
-                  }
-                  placeholder="0"
-                  className="w-full rounded-2xl border border-slate-200 px-4 sm:px-5 py-3.5 sm:py-4 text-sm font-semibold outline-none focus:ring-4 focus:ring-orange-100"
-                />
-              </div>
+                  {/* Price Field */}
+                  <div>
+                    <div className="text-[11px] font-extrabold tracking-[0.22em] text-slate-400">
+                      PRICE
+                    </div>
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      placeholder="0.00"
+                      value={p.amount}
+                      onChange={(e) => {
+                        const copy = [...form.prices];
+                        copy[i].amount = Number(e.target.value);
+                        setForm({ ...form, prices: copy });
+                      }}
+                      className="mt-2 w-full rounded-2xl border border-slate-200 px-4 py-3.5 text-sm font-semibold outline-none focus:ring-4 focus:ring-orange-100"
+                    />
+                  </div>
 
-              {/* LARGE */}
-              <div className="grid gap-1">
-                <div className="text-[10px] font-extrabold tracking-[0.18em] text-slate-400">
-                  LARGE
+                  {/* Remove */}
+                  {form.prices.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setForm((p) => ({
+                          ...p,
+                          prices: p.prices.filter((_, idx) => idx !== i),
+                        }))
+                      }
+                      className="text-xs font-extrabold text-red-500 hover:underline"
+                    >
+                      Remove
+                    </button>
+                  )}
                 </div>
-                <input
-                  type="number"
-                  inputMode="decimal"
-                  value={form.prices?.large ?? 0}
-                  onChange={(e) =>
-                    setForm((p) => ({
-                      ...p,
-                      prices: { ...p.prices, large: Number(e.target.value || 0) },
-                    }))
-                  }
-                  placeholder="0"
-                  className="w-full rounded-2xl border border-slate-200 px-4 sm:px-5 py-3.5 sm:py-4 text-sm font-semibold outline-none focus:ring-4 focus:ring-orange-100"
-                />
-              </div>
+              ))}
+
+              {/* Add */}
+              <button
+                type="button"
+                onClick={() =>
+                  setForm((p) => ({
+                    ...p,
+                    prices: [...p.prices, { label: "", amount: 0 }],
+                  }))
+                }
+                className="w-full rounded-2xl border border-dashed border-slate-300 px-4 py-3 text-sm font-extrabold text-slate-500 hover:border-orange-400 hover:text-orange-500"
+              >
+                + Add Price Option
+              </button>
             </div>
           </Field>
         </div>
@@ -304,8 +321,8 @@ export default function ItemForm({
                   {uploading
                     ? "Uploading..."
                     : form.imageUrl
-                      ? "Uploaded"
-                      : "PNG, JPG up to 5MB"}
+                    ? "Uploaded"
+                    : "PNG, JPG up to 5MB"}
                 </div>
 
                 <input
@@ -329,7 +346,9 @@ export default function ItemForm({
 
               <input
                 value={form.imageUrl || ""}
-                onChange={(e) => setForm((p) => ({ ...p, imageUrl: e.target.value }))}
+                onChange={(e) =>
+                  setForm((p) => ({ ...p, imageUrl: e.target.value }))
+                }
                 placeholder="Or paste image URL..."
                 className="w-full rounded-2xl border border-slate-200 px-4 sm:px-5 py-3.5 sm:py-4 text-sm font-semibold outline-none focus:ring-4 focus:ring-orange-100"
               />
@@ -337,7 +356,8 @@ export default function ItemForm({
               {/* small helper text when editing */}
               {!!originalImageUrlRef.current && !uploadedFileKey && (
                 <div className="text-xs font-semibold text-slate-400">
-                  Editing existing item image (won’t be deleted unless you upload a new one).
+                  Editing existing item image (won’t be deleted unless you
+                  upload a new one).
                 </div>
               )}
             </div>
@@ -363,7 +383,9 @@ export default function ItemForm({
       <Field label="EXTERNAL REDIRECT URL (UBEREATS, FOODPANDA, ETC.)">
         <input
           value={form.externalUrl}
-          onChange={(e) => setForm((p) => ({ ...p, externalUrl: e.target.value }))}
+          onChange={(e) =>
+            setForm((p) => ({ ...p, externalUrl: e.target.value }))
+          }
           placeholder="https://foodpanda.com/zakoota/item/123"
           className="w-full rounded-2xl border border-slate-200 px-4 sm:px-5 py-3.5 sm:py-4 text-sm font-semibold outline-none focus:ring-4 focus:ring-orange-100"
         />
@@ -423,12 +445,14 @@ function ToggleCard({ title, desc, checked, onChange, tone = "default" }) {
         type="button"
         onClick={() => onChange(!checked)}
         aria-pressed={checked}
-        className={`shrink-0 w-12 h-7 rounded-full p-1 transition ${checked ? "bg-emerald-500" : "bg-slate-300"
-          }`}
+        className={`shrink-0 w-12 h-7 rounded-full p-1 transition ${
+          checked ? "bg-emerald-500" : "bg-slate-300"
+        }`}
       >
         <span
-          className={`block w-5 h-5 rounded-full bg-white transition-transform ${checked ? "translate-x-5" : "translate-x-0"
-            }`}
+          className={`block w-5 h-5 rounded-full bg-white transition-transform ${
+            checked ? "translate-x-5" : "translate-x-0"
+          }`}
         />
       </button>
     </div>

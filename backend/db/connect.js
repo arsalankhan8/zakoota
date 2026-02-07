@@ -1,3 +1,5 @@
+// backend > db > connect.js
+
 import mongoose from "mongoose";
 
 export async function connectDB(uri) {

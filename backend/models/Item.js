@@ -13,9 +13,13 @@ const itemSchema = new mongoose.Schema(
     description: { type: String, default: "", trim: true },
 
     prices: {
-      small: { type: Number, default: 0 },
-      medium: { type: Number, default: 0 },
-      large: { type: Number, default: 0 },
+      type: [
+        {
+          label: String,
+          amount: Number,
+        },
+      ],
+      default: [],
     },
 
     imageUrl: { type: String, default: "" },

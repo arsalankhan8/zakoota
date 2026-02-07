@@ -3,11 +3,12 @@ import path from "path";
 import fs from "fs";
 
 // Ensure folder exists
-const itemsDir = path.join(process.cwd(), "uploads/items");
-fs.mkdirSync(itemsDir, { recursive: true });
+const iconsDir = path.join(process.cwd(), "uploads/icons");
+fs.mkdirSync(iconsDir, { recursive: true });
 
+// Multer storage
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, itemsDir),
+  destination: (req, file, cb) => cb(null, iconsDir),
   filename: (req, file, cb) => {
     const ext = path.extname(file.originalname || "");
     const safeName = `${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}`;
@@ -15,13 +16,15 @@ const storage = multer.diskStorage({
   },
 });
 
+// Only allow images
 const fileFilter = (req, file, cb) => {
   if (file.mimetype?.startsWith("image/")) return cb(null, true);
   cb(new Error("Only image files are allowed"), false);
 };
 
-export const uploadItemImage = multer({
+// Export
+export const uploadCategoryIcon = multer({
   storage,
   fileFilter,
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+  limits: { fileSize: 2 * 1024 * 1024 }, // 2MB
 });

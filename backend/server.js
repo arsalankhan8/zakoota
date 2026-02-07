@@ -3,44 +3,57 @@ import dotenv from "dotenv";
 import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
+import path from "path";
+import { fileURLToPath } from "url";
+
 import { connectDB } from "./db/connect.js";
 import authRoutes from "./routes/auth.js";
 import categoryRoutes from "./routes/categories.js";
 import itemRoutes from "./routes/items.js";
 
-import path from "path";
-import { fileURLToPath } from "url";
 dotenv.config();
 
 const app = express();
 
-//  Add this if hosted behind proxy (safe to keep)
+// Trust proxy (needed if behind a reverse proxy)
 app.set("trust proxy", 1);
 
+// File paths
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// serve uploaded files
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
-
-app.use(helmet());
-app.use(morgan("dev"));
-app.use(express.json({ limit: "2mb" }));
-
+// Middleware
 app.use(
-  cors({
-    origin: ["http://localhost:5173", "http://192.168.18.124:5173"],
-    credentials: true,
+  helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+    crossOriginEmbedderPolicy: false, // optional: disable COEP if not needed
   })
 );
+app.use(morgan("dev"));
+app.use(express.json({ limit: "2mb" }));
+app.use(express.urlencoded({ extended: true }));
 
+// Enable CORS for frontend
+app.use(cors());
+
+// -----------------------------
+// Serve uploaded icons
+// -----------------------------
+app.use(
+  "/api/uploads/icons",
+  express.static(path.join(process.cwd(), "uploads/icons"))
+);
+
+// Serve other uploaded files normally
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
+// Routes
 app.get("/api/health", (req, res) => res.json({ ok: true }));
-
-//  No rate limiters here
 app.use("/api/auth", authRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/items", itemRoutes);
 
+// Start server
 const port = process.env.PORT || 5000;
 
 connectDB(process.env.MONGO_URI)

@@ -1,20 +1,23 @@
-
+// routes > items.js
 import fs from "fs";
 import path from "path";
-
 import express from "express";
 import Item from "../models/Item.js";
 import { requireAuth } from "../middlewares/auth.js";
 import { uploadItemImage } from "../middlewares/upload.js";
 const router = express.Router();
 
-
 router.delete("/upload/:fileKey", requireAuth, async (req, res) => {
   try {
     const { fileKey } = req.params;
 
     // prevent path traversal
-    if (!fileKey || fileKey.includes("..") || fileKey.includes("/") || fileKey.includes("\\")) {
+    if (
+      !fileKey ||
+      fileKey.includes("..") ||
+      fileKey.includes("/") ||
+      fileKey.includes("\\")
+    ) {
       return res.status(400).json({ message: "Invalid fileKey" });
     }
 
@@ -32,9 +35,6 @@ router.delete("/upload/:fileKey", requireAuth, async (req, res) => {
     return res.status(500).json({ message: "Server error" });
   }
 });
-
-
-
 
 // upload image
 router.post(

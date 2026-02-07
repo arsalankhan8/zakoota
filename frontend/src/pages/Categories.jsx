@@ -1,3 +1,5 @@
+// pages > Categories.jsx
+
 import { useEffect, useMemo, useState } from "react";
 import { api } from "../api/api";
 import CreateCategoryModal from "../modals/CreateCategoryModal";
@@ -40,7 +42,8 @@ export default function Categories() {
       const msg = e.response.data?.message;
 
       if (status === 401) return msg || "Unauthorized. Please login again.";
-      if (status === 403) return msg || "You don’t have permission to view this.";
+      if (status === 403)
+        return msg || "You don’t have permission to view this.";
       if (status === 404) return msg || "Endpoint not found (404).";
       if (status >= 500) return msg || "Server error. Please try again.";
       return msg || `Request failed (${status}).`;
@@ -91,10 +94,12 @@ export default function Categories() {
     return map;
   }, [items]);
 
-  async function createCategory(name) {
+  async function createCategory(formData) {
     setCreating(true);
     try {
-      await api.post("/categories", { name });
+      await api.post("/categories", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
       await load();
       setOpenCreate(false);
     } catch (e) {
@@ -109,11 +114,13 @@ export default function Categories() {
     setOpenEdit(true);
   }
 
-  async function saveEdit(newName) {
+  async function saveEdit(formData) {
     if (!editTarget?.id) return;
     setEditing(true);
     try {
-      await api.put(`/categories/${editTarget.id}`, { name: newName });
+      await api.put(`/categories/${editTarget.id}`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
       await load();
       setOpenEdit(false);
       setEditTarget(null);
@@ -153,7 +160,8 @@ export default function Categories() {
       <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4 lg:gap-6">
         <div>
           <div className="text-xs font-bold tracking-widest text-slate-400">
-            MENU MANAGEMENT / <span className="text-orange-500">CATEGORIES</span>
+            MENU MANAGEMENT /{" "}
+            <span className="text-orange-500">CATEGORIES</span>
           </div>
           <div className="text-3xl sm:text-4xl font-extrabold mt-2">
             Menu Structure
@@ -279,6 +287,7 @@ export default function Categories() {
               <Row
                 key={c._id}
                 name={c.name}
+                icon={c.icon} // pass icon filename
                 density={densityMap[c._id] || 0}
                 onEdit={() => startEdit(c._id, c.name)}
                 onDelete={() => askDelete(c._id, c.name)}
@@ -352,14 +361,26 @@ function RowActions({ onEdit, onDelete }) {
   );
 }
 
-function Row({ name, density, onEdit, onDelete }) {
+function Row({ name, density, onEdit, onDelete, icon }) {
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const iconUrl = icon ? `${API_URL}/uploads/icons/${icon}` : null; // remove /api
+
   return (
     <>
       {/* Desktop row (md+) */}
       <div className="hidden md:grid grid-cols-[100px_1fr_180px_160px] px-8 py-6 border-t border-slate-100 items-center">
         <div>
-          <div className="w-12 h-12 rounded-2xl bg-slate-50 grid place-items-center border border-slate-100">
-            <Layers size={18} className="text-slate-400" />
+          <div className="w-12 h-12 rounded-2xl bg-slate-50 grid place-items-center border border-slate-100 overflow-hidden">
+{iconUrl ? (
+  <img
+    src={iconUrl}
+    alt={name}
+    className="w-full h-full object-cover"
+  />
+) : (
+  <Layers size={18} className="text-slate-400" />
+)}
+
           </div>
         </div>
 
@@ -378,26 +399,32 @@ function Row({ name, density, onEdit, onDelete }) {
 
       {/* Mobile card (< md) */}
       <div className="md:hidden border-t border-slate-100 px-5 py-5">
-        <div className="rounded-2xl border border-slate-100 bg-white p-4">
-          <div className="flex items-start gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-slate-50 grid place-items-center border border-slate-100 shrink-0">
+        <div className="rounded-2xl border border-slate-100 bg-white p-4 flex gap-4">
+          <div className="w-12 h-12 rounded-2xl bg-slate-50 border border-slate-100 shrink-0 overflow-hidden grid place-items-center">
+            {iconUrl ? (
+              <img
+                src={iconUrl}
+                alt={name}
+                className="w-full h-full object-cover"
+              />
+            ) : (
               <Layers size={18} className="text-slate-400" />
+            )}
+          </div>
+
+          <div className="flex-1 min-w-0">
+            <div className="font-extrabold text-slate-900 leading-snug break-words">
+              {name}
             </div>
 
-            <div className="min-w-0 flex-1">
-              <div className="font-extrabold text-slate-900 leading-snug break-words">
-                {name}
-              </div>
-
-              <div className="mt-3">
-                <span className="inline-flex items-center rounded-full bg-slate-100 px-4 py-2 text-xs font-extrabold text-slate-600">
-                  {density} ITEMS
-                </span>
-              </div>
+            <div className="mt-3">
+              <span className="inline-flex items-center rounded-full bg-slate-100 px-4 py-2 text-xs font-extrabold text-slate-600">
+                {density} ITEMS
+              </span>
             </div>
           </div>
 
-          <div className="mt-4 flex sm-justify-end gap-3">
+          <div className="flex gap-2 items-start">
             <RowActions onEdit={onEdit} onDelete={onDelete} />
           </div>
         </div>

@@ -1,26 +1,33 @@
+// forms > CategoryForm.jsx
+
 import { useEffect, useState } from "react";
 
 export default function CategoryForm({
   initialName = "",
+  initialIcon = null, // pass the existing icon path if editing
   onSubmit,
   onCancel,
   loading = false,
 }) {
   const [name, setName] = useState(initialName);
+  const [file, setFile] = useState(null);
   const [error, setError] = useState("");
-
-  useEffect(() => setName(initialName), [initialName]);
-
   const submit = async (e) => {
     e.preventDefault();
-    setError("");
 
     if (!name.trim()) {
-      setError("Category name is required.");
+      setError("Category name is required");
       return;
     }
 
-    await onSubmit?.({ name: name.trim() });
+    setError("");
+
+    const formData = new FormData();
+    formData.append("name", name.trim());
+
+    if (file) formData.append("icon", file);
+
+    await onSubmit?.(formData);
   };
 
   return (
@@ -47,7 +54,17 @@ export default function CategoryForm({
           </div>
         ) : null}
       </div>
-
+      <div>
+        <div className="text-[11px] font-extrabold tracking-[0.22em] text-slate-400">
+          CATEGORY ICON
+        </div>
+        <input
+          type="file"
+          accept="image/*"
+          onChange={(e) => setFile(e.target.files[0])}
+          className="mt-2 block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100"
+        />
+      </div>
       <div className="flex flex-col items-center  gap-4 min-[470px]:flex-row min-[470px]:px-0 sm:items-start">
         <button
           type="button"
@@ -66,7 +83,6 @@ export default function CategoryForm({
           {loading ? "Saving..." : "Save Changes"}
         </button>
       </div>
-
     </form>
   );
 }

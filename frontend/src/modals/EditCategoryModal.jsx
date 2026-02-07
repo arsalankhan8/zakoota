@@ -1,11 +1,13 @@
 import Modal from "./Modal";
-import CategoryForm from "../forms/categoryForm";
+import CategoryForm from "../forms/CategoryForm";
+
 export default function EditCategoryModal({
   open,
   onClose,
   initialName = "",
   onSave,
   loading = false,
+    initialIcon = null,
 }) {
   return (
     <Modal open={open} onClose={onClose}>
@@ -16,15 +18,17 @@ export default function EditCategoryModal({
         </div>
 
         <div className="mt-8">
-          <CategoryForm
-            initialName={initialName}
-            onCancel={onClose}
-            loading={loading}
-            onSubmit={async ({ name }) => {
-              await onSave?.(name);
-              onClose?.();
-            }}
-          />
+<CategoryForm
+  initialName={initialName}
+  initialIcon={initialIcon}
+  onCancel={onClose}
+  loading={loading}
+  onSubmit={async (formData) => {
+    await onSave?.(formData);
+    onClose?.();
+  }}
+/>
+
         </div>
       </div>
     </Modal>
