@@ -174,7 +174,7 @@ export default function BestSellingDishesSection({
         setErr("");
 
         const res = await api.get("/items/public");
-        const data = Array.isArray(res.data) ? res.data : [];
+        const data = Array.isArray(res.data?.data) ? res.data.data : (Array.isArray(res.data) ? res.data : []);
 
         if (!alive) return;
         setItems(data);

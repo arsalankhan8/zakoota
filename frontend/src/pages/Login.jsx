@@ -18,34 +18,38 @@ export default function Login() {
     return () => clearInterval(t);
   }, [cooldown]);
 
-  async function onSubmit(e) {
-    e.preventDefault();
-    if (loading || cooldown > 0) return;
+async function onSubmit(e) {
+  e.preventDefault();
+  if (loading || cooldown > 0) return;
 
-    setErr("");
-    setLoading(true);
+  setErr("");
+  setLoading(true);
 
-    try {
-      const res = await api.post("/auth/login", { username, password });
-      localStorage.setItem("token", res.data.token);
-      navigate("/admin");
-    } catch (e2) {
-      const status = e2?.response?.status;
+  try {
+    // Explicitly set Content-Type to ensure backend parses JSON correctly
+    const res = await api.post(
+      "/auth/login",
+      { username, password },
+      { headers: { "Content-Type": "application/json" } }
+    );
 
-      // rate limited
-      if (status === 429) {
-        // If you set standardHeaders:true on backend,
-        // browser can read "Retry-After" sometimes, but not always exposed.
-        // So we do a safe default.
-        setCooldown(30);
-        setErr("Too many attempts. Please wait 30 seconds and try again.");
-      } else {
-        setErr(e2?.response?.data?.message || "Login failed");
-      }
-    } finally {
-      setLoading(false);
+    localStorage.setItem("token", res.data.token);
+    navigate("/admin");
+  } catch (e2) {
+    const status = e2?.response?.status;
+
+    if (status === 429) {
+      setCooldown(30);
+      setErr("Too many attempts. Please wait 30 seconds and try again.");
+    } else if (status === 401) {
+      setErr("Invalid username or password."); // more descriptive
+    } else {
+      setErr(e2?.response?.data?.message || "Login failed");
     }
+  } finally {
+    setLoading(false);
   }
+}
 
   const disabled = loading || cooldown > 0;
 

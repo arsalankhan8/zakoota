@@ -1,17 +1,15 @@
-import express from "express";
 import dotenv from "dotenv";
+dotenv.config();
+import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
 import path from "path";
 import { fileURLToPath } from "url";
-
 import { connectDB } from "./db/connect.js";
 import authRoutes from "./routes/auth.js";
 import categoryRoutes from "./routes/categories.js";
 import itemRoutes from "./routes/items.js";
-
-dotenv.config();
 
 const app = express();
 
@@ -27,21 +25,37 @@ app.use(
   helmet({
     crossOriginResourcePolicy: { policy: "cross-origin" },
     crossOriginEmbedderPolicy: false, // optional: disable COEP if not needed
-  })
+  }),
 );
 app.use(morgan("dev"));
 app.use(express.json({ limit: "2mb" }));
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: true, limit: "2mb" }));
 
-// Enable CORS for frontend
-app.use(cors());
+const allowedOrigins = [
+  "https://zakoota.netlify.app", // live frontend
+  "http://localhost:5173", // Vite dev server
+];
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      // allow requests with no origin (like Postman)
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true, // if using cookies or auth headers
+  }),
+);
 
 // -----------------------------
 // Serve uploaded icons
 // -----------------------------
 app.use(
   "/api/uploads/icons",
-  express.static(path.join(process.cwd(), "uploads/icons"))
+  express.static(path.join(process.cwd(), "uploads/icons")),
 );
 
 // Serve other uploaded files normally

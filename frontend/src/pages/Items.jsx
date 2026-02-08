@@ -42,6 +42,9 @@ export default function Items() {
   const [deleting, setDeleting] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null); // { id, name }
 
+  // admin fix
+  const [fixingAdmin, setFixingAdmin] = useState(false);
+
   function getErrorMessage(e) {
     if (e?.response) {
       const status = e.response.status;
@@ -62,6 +65,21 @@ export default function Items() {
     return e?.message || "Something went wrong.";
   }
 
+  async function fixAdminAccess() {
+    setFixingAdmin(true);
+    try {
+      const res = await api.post("/auth/promote-to-admin");
+      if (res.data.token) {
+        localStorage.setItem("token", res.data.token);
+        await load();
+      }
+    } catch (e) {
+      setErr("Failed to fix admin access. Please try logging out and back in.");
+    } finally {
+      setFixingAdmin(false);
+    }
+  }
+
   async function load() {
     setLoading(true);
     setErr("");
@@ -72,12 +90,22 @@ export default function Items() {
         api.get("/items"),
       ]);
 
-      const cats = Array.isArray(cRes.data) ? cRes.data : [];
-      const its = Array.isArray(iRes.data) ? iRes.data : [];
+      console.log("Categories response:", cRes.data);
+      console.log("Items response:", iRes.data);
+
+      const cats = Array.isArray(cRes.data?.data) ? cRes.data.data : (Array.isArray(cRes.data) ? cRes.data : []);
+      const its = Array.isArray(iRes.data?.data) ? iRes.data.data : (Array.isArray(iRes.data) ? iRes.data : []);
+
+      console.log("Parsed categories:", cats);
+      console.log("Parsed items:", its);
+      console.log("Categories count:", cats.length);
+      console.log("Items count:", its.length);
 
       setCategories(cats);
       setItems(its);
     } catch (e) {
+      console.error("Load error:", e);
+      console.error("Error response:", e?.response?.data);
       setCategories([]);
       setItems([]);
       setErr(getErrorMessage(e));
@@ -196,13 +224,24 @@ export default function Items() {
             </div>
           </div>
 
-          <button
-            onClick={load}
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-2xl bg-slate-900 px-5 py-3 text-sm font-extrabold text-white hover:opacity-95"
-          >
-            <RefreshCw size={16} />
-            Retry
-          </button>
+          <div className="flex gap-2">
+            {err.includes("Forbidden") || err.includes("Admins only") ? (
+              <button
+                onClick={fixAdminAccess}
+                disabled={fixingAdmin}
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-2xl bg-orange-500 px-5 py-3 text-sm font-extrabold text-white hover:opacity-95 disabled:opacity-50"
+              >
+                {fixingAdmin ? "Fixing..." : "Fix Admin Access"}
+              </button>
+            ) : null}
+            <button
+              onClick={load}
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-2xl bg-slate-900 px-5 py-3 text-sm font-extrabold text-white hover:opacity-95"
+            >
+              <RefreshCw size={16} />
+              Retry
+            </button>
+          </div>
         </div>
       ) : null}
 
@@ -263,13 +302,42 @@ export default function Items() {
       {/* Content */}
       {!loading && !err ? (
         <div className="space-y-10">
-          {categories.map((cat) => {
-            const catItems = items.filter((it) => {
-              const catId = it.category?._id || it.category;
-              return String(catId) === String(cat._id);
-            });
+          {/* Show all items if no categories exist */}
+          {categories.length === 0 && items.length > 0 ? (
+            <section className="space-y-5">
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 rounded-xl bg-slate-900 text-white grid place-items-center">
+                  <Filter size={18} className="text-white" />
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="text-xl font-extrabold text-slate-900">
+                    All Items
+                  </div>
+                  <span className="rounded-full bg-slate-100 px-3 py-1 text-[11px] font-extrabold tracking-widest text-slate-500">
+                    {items.length} ITEMS
+                  </span>
+                </div>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 min-w-[1440px]:grid-cols-4 gap-4 sm:gap-6">
+                {items.map((it) => (
+                  <Card
+                    key={it._id}
+                    it={it}
+                    base={BASE}
+                    onEdit={() => startEdit(it)}
+                    onDelete={() => askDelete(it)}
+                  />
+                ))}
+              </div>
+            </section>
+          ) : (
+            categories.map((cat) => {
+              const catItems = items.filter((it) => {
+                const catId = it.category?._id || it.category;
+                return String(catId) === String(cat._id);
+              });
 
-            if (catItems.length === 0) return null;
+              if (catItems.length === 0) return null;
 
             return (
               <section key={cat._id} className="space-y-5">
@@ -302,7 +370,8 @@ export default function Items() {
                 </div>
               </section>
             );
-          })}
+            })
+          )}
 
           {uncategorized.length > 0 && (
             <section className="space-y-5">

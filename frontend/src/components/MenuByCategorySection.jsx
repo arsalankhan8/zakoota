@@ -21,7 +21,8 @@ export default function MenuByCategorySection({ onAddToCart }) {
 
         if (!alive) return;
 
-        setItems(res.data || []);
+        const itemsData = Array.isArray(res.data?.data) ? res.data.data : (Array.isArray(res.data) ? res.data : []);
+        setItems(itemsData);
       } catch (err) {
         setError("Failed to load menu");
       } finally {

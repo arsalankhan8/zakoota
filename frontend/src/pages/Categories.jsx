@@ -56,6 +56,23 @@ export default function Categories() {
     return e?.message || "Something went wrong.";
   }
 
+  const [fixingAdmin, setFixingAdmin] = useState(false);
+
+  async function fixAdminAccess() {
+    setFixingAdmin(true);
+    try {
+      const res = await api.post("/auth/promote-to-admin");
+      if (res.data.token) {
+        localStorage.setItem("token", res.data.token);
+        await load();
+      }
+    } catch (e) {
+      setErr("Failed to fix admin access. Please try logging out and back in.");
+    } finally {
+      setFixingAdmin(false);
+    }
+  }
+
   async function load() {
     setLoading(true);
     setErr("");
@@ -66,8 +83,8 @@ export default function Categories() {
         api.get("/items"),
       ]);
 
-      const cats = Array.isArray(cRes.data) ? cRes.data : [];
-      const its = Array.isArray(iRes.data) ? iRes.data : [];
+      const cats = Array.isArray(cRes.data?.data) ? cRes.data.data : (Array.isArray(cRes.data) ? cRes.data : []);
+      const its = Array.isArray(iRes.data?.data) ? iRes.data.data : (Array.isArray(iRes.data) ? iRes.data : []);
 
       setCategories(cats);
       setItems(its);
@@ -188,19 +205,30 @@ export default function Categories() {
             </div>
             <div>
               <div className="font-extrabold text-slate-900">
-                Couldn’t load data
+                Couldn't load data
               </div>
               <div className="text-sm text-slate-600 mt-1">{err}</div>
             </div>
           </div>
 
-          <button
-            onClick={load}
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-2xl bg-slate-900 px-5 py-3 text-sm font-extrabold text-white hover:opacity-95"
-          >
-            <RefreshCw size={16} />
-            Retry
-          </button>
+          <div className="flex gap-2">
+            {err.includes("Forbidden") || err.includes("Admins only") ? (
+              <button
+                onClick={fixAdminAccess}
+                disabled={fixingAdmin}
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-2xl bg-orange-500 px-5 py-3 text-sm font-extrabold text-white hover:opacity-95 disabled:opacity-50"
+              >
+                {fixingAdmin ? "Fixing..." : "Fix Admin Access"}
+              </button>
+            ) : null}
+            <button
+              onClick={load}
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-2xl bg-slate-900 px-5 py-3 text-sm font-extrabold text-white hover:opacity-95"
+            >
+              <RefreshCw size={16} />
+              Retry
+            </button>
+          </div>
         </div>
       ) : null}
 

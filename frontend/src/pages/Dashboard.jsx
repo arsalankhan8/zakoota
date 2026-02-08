@@ -1,23 +1,52 @@
 import { useEffect, useState } from "react";
 import { api } from "../api/api";
-import { Layers3, UtensilsCrossed, ArrowUpRight, Wrench } from "lucide-react";
+import { Layers3, UtensilsCrossed, ArrowUpRight, Wrench, AlertTriangle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export default function Dashboard() {
   const [categories, setCategories] = useState([]);
   const [items, setItems] = useState([]);
+  const [adminError, setAdminError] = useState(false);
+  const [fixingAdmin, setFixingAdmin] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
-    (async () => {
+    loadData();
+  }, []);
+
+  async function loadData() {
+    try {
       const [c, i] = await Promise.all([
         api.get("/categories"),
         api.get("/items"),
       ]);
-      setCategories(c.data);
-      setItems(i.data);
-    })();
-  }, []);
+      setCategories(Array.isArray(c.data?.data) ? c.data.data : (Array.isArray(c.data) ? c.data : []));
+      setItems(Array.isArray(i.data?.data) ? i.data.data : (Array.isArray(i.data) ? i.data : []));
+      setAdminError(false);
+    } catch (e) {
+      if (e?.response?.status === 403) {
+        setAdminError(true);
+      } else {
+        console.error("Failed to load data:", e);
+      }
+    }
+  }
+
+  async function fixAdminAccess() {
+    setFixingAdmin(true);
+    try {
+      const res = await api.post("/auth/promote-to-admin");
+      if (res.data.token) {
+        localStorage.setItem("token", res.data.token);
+        await loadData();
+      }
+    } catch (e) {
+      console.error("Failed to promote to admin:", e);
+      alert("Failed to fix admin access. Please try logging out and back in, or contact support.");
+    } finally {
+      setFixingAdmin(false);
+    }
+  }
 
   return (
     <div className="mx-auto w-full">
@@ -32,6 +61,32 @@ export default function Dashboard() {
       <h1 className="mt-2 text-[26px] sm:text-[34px] leading-[1.1] font-black text-slate-900">
         System Status
       </h1>
+
+      {/* Admin Fix Banner */}
+      {adminError && (
+        <div className="mt-6 rounded-3xl border border-orange-200 bg-orange-50 px-5 sm:px-6 py-5 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+          <div className="flex gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-white border border-orange-200 grid place-items-center shrink-0">
+              <AlertTriangle className="text-orange-500" size={18} />
+            </div>
+            <div>
+              <div className="font-extrabold text-slate-900">
+                Admin Access Required
+              </div>
+              <div className="text-sm text-slate-600 mt-1">
+                Your account needs admin privileges to access this page. Click below to fix this.
+              </div>
+            </div>
+          </div>
+          <button
+            onClick={fixAdminAccess}
+            disabled={fixingAdmin}
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-2xl bg-orange-500 px-5 py-3 text-sm font-extrabold text-white hover:opacity-95 disabled:opacity-50"
+          >
+            {fixingAdmin ? "Fixing..." : "Fix Admin Access"}
+          </button>
+        </div>
+      )}
 
       {/* Hero */}
       <div
