@@ -9,7 +9,7 @@ import Items from "./pages/Items.jsx";
 import Layout from "./components/Layout.jsx";
 import Navbar from "./components/Navbar.jsx";
 import Footer from "./components/Footer.jsx";
-
+import About from "./pages/About.jsx";
 function Protected({ children }) {
   const token = localStorage.getItem("token");
   return token ? children : <Navigate to="/login" replace />;
@@ -32,6 +32,7 @@ export default function App() {
           <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/menu" element={<MenuPage />} />
+              <Route path="/about" element={<About />} />
           </Routes>
 
           <Footer />
@@ -53,6 +54,7 @@ export default function App() {
           <Route index element={<Dashboard />} />
           <Route path="categories" element={<Categories />} />
           <Route path="items" element={<Items />} />
+        
         </Route>
       </Routes>
     </>

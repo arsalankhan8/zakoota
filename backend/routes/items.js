@@ -49,13 +49,13 @@ router.post(
     const imageUrl = `/uploads/items/${fileKey}`;
 
     res.json({ imageUrl, fileKey });
-  }
+  },
 );
 
 // public
 router.get("/public", async (req, res) => {
   const items = await Item.find({ isLive: true })
-    .populate("category", "name")
+    .populate("category", "name icon")
     .sort({ createdAt: -1 });
   res.json(items);
 });

@@ -122,36 +122,35 @@ export function DishCard({ item, onAddToCart }) {
 
         <p className="mt-5 text-[18px] leading-6 text-black/60">{desc}</p>
 
-<div className="mt-7 flex items-end justify-between">
-  <div className="text-[22px] font-extrabold text-[#c81e1e]">
-    {item?.prices?.length ? (
-      <div className="flex flex-col gap-1">
-        {item.prices.map((p, i) => (
-          <div
-            key={i}
-            className="text-[18px] font-extrabold text-[#c81e1e]"
-          >
-            {p.label}: {money(p.amount)}
+        <div className="mt-7 flex items-end justify-between">
+          <div className="text-[22px] font-extrabold text-[#c81e1e]">
+            {item?.prices?.length ? (
+              <div className="flex flex-col gap-1">
+                {item.prices.map((p, i) => (
+                  <div
+                    key={i}
+                    className="text-[18px] font-extrabold text-[#c81e1e]"
+                  >
+                    {p.label}: {money(p.amount)}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <span className="text-[18px] font-extrabold text-[#c81e1e]">
+                No price
+              </span>
+            )}
           </div>
-        ))}
-      </div>
-    ) : (
-      <span className="text-[18px] font-extrabold text-[#c81e1e]">
-        No price
-      </span>
-    )}
-  </div>
 
-  <button
-    type="button"
-    onClick={() => onAddToCart?.(item)}
-    className="h-12 w-12 rounded-xl bg-[#0b7a3b] grid place-items-center active:scale-[0.98]"
-    aria-label="Add to cart"
-  >
-    <ShoppingBasket className="h-5 w-5 text-white" />
-  </button>
-</div>
-
+          <button
+            type="button"
+            onClick={() => onAddToCart?.(item)}
+            className="h-12 w-12 rounded-xl bg-[#0b7a3b] grid place-items-center active:scale-[0.98]"
+            aria-label="Add to cart"
+          >
+            <ShoppingBasket className="h-5 w-5 text-white" />
+          </button>
+        </div>
       </div>
     </div>
   );

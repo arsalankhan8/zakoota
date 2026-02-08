@@ -74,10 +74,17 @@ export default function Navbar() {
           <div className="py-2 sm:py-0 sm:h-10 grid grid-cols-[1fr_auto_1fr] items-center gap-3 text-[16px] sm:text-[18px]">
             {/* Left */}
             <div className="justify-self-start lg:w-[320px] max-[1380px]:lg:w-[260px]">
-              <button className="flex items-center gap-2 opacity-90 hover:opacity-100">
-                <MapPin size={18} />
-                Find a store
-              </button>
+<a
+  href="https://www.google.com/maps/search/?api=1&query=4+61+Mabo+Boulevard+Bonner+ACT+2914"
+  target="_blank"
+  rel="noreferrer"
+  className="flex items-center gap-2 opacity-90 hover:opacity-100"
+>
+  <MapPin size={18} />
+  Find a store
+</a>
+
+
             </div>
 
             {/* Center */}
@@ -123,7 +130,7 @@ export default function Navbar() {
                     24/7 Support Center
                   </div>
                   <div className="text-[24px] font-extrabold text-[#d6362b]">
-                    +1 718-904-4450
+                    Phone coming soon
                   </div>
                 </div>
               </div>

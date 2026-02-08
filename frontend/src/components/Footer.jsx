@@ -1,8 +1,9 @@
-import { NavLink } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import logo from "../assets/site-logo.webp";
 import FbIcon from "../assets/facebook-icon.svg?react";
 import IgIcon from "../assets/instagram-icon.svg?react";
 import YtIcon from "../assets/youtube-icon.svg?react";
+import { useCallback } from "react";
 
 const SocialIcon = ({ href = "#", label, children, className = "" }) => (
   <a
@@ -17,23 +18,55 @@ const SocialIcon = ({ href = "#", label, children, className = "" }) => (
 );
 
 export default function Footer() {
+  const navigate = useNavigate();
+
+  // Scroll to top instantly before navigation
+  const handleNavigate = useCallback(
+    (path = "/") => {
+      window.scrollTo({ top: 0, behavior: "auto" }); // instant scroll
+      navigate(path);
+    },
+    [navigate],
+  );
+
+  const products = [
+    { label: "BURGERS", path: "/menu" },
+    { label: "KING DELIGHT PRODUCTS", path: "/menu" },
+    { label: "CRISPY FLAVORS", path: "/menu" },
+    { label: "BREAKFAST PRODUCTS", path: "/menu" },
+  ];
+
+  const quickLinks = [
+    { label: "HOME", path: "/" },
+    { label: "MENU", path: "/menu" },
+    { label: "ABOUT US", path: "/about" },
+    { label: "CONTACTS", path: "/contacts" },
+  ];
+
   return (
     <footer className="w-full bg-[#f7f2e9] font-[Barlow_Condensed] text-black">
       <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-10">
         <div className="py-14">
- <div className="grid gap-10 md:gap-12 lg:gap-16
+          <div
+            className="grid gap-10 md:gap-12 lg:gap-16
                 grid-cols-2 sm:grid-cols-2 md:grid-cols-2
                 lg:grid-cols-[1.1fr_1.2fr_0.9fr_0.9fr]
-                items-start">
+                items-start"
+          >
             {/* Left */}
             <div>
-              <img src={logo} alt="Fazfood" className="h-[44px] object-contain" />
+              <img
+                src={logo}
+                alt="Fazfood"
+                className="h-[44px] object-contain"
+              />
 
               <div className="mt-8 space-y-3 text-[16px] sm:text-[17px] text-black/70">
-                <p>2972 Westheimer Rd. Santa Ana,</p>
-                <p>Illinois 85486</p>
-                <p>support@example.com</p>
-                <p className="font-extrabold text-[#d6362b]">+(084) 456-0789</p>
+                <p className="font-extrabold tracking-wide uppercase">
+                  Address
+                </p>
+                <p>4, 61 Mabo Boulevard Bonner ACT 2914</p>
+                <p className="italic">Phone coming soon</p>
               </div>
             </div>
 
@@ -44,16 +77,16 @@ export default function Footer() {
               </h3>
 
               <ul className="mt-8 space-y-3">
-                {["BURGERS", "KING DELIGHT PRODUCTS", "CRISPY FLAVORS", "BREAKFAST PRODUCTS"].map(
-                  (t) => (
-                    <li
-                      key={t}
-                      className="text-[16px] sm:text-[17px] font-extrabold uppercase tracking-wide text-black/70"
+                {products.map((item) => (
+                  <li key={item.label}>
+                    <button
+                      onClick={() => handleNavigate(item.path)}
+                      className="text-[16px] sm:text-[17px] font-extrabold uppercase tracking-wide text-black/70 hover:text-[#d6362b] transition"
                     >
-                      {t}
-                    </li>
-                  )
-                )}
+                      {item.label}
+                    </button>
+                  </li>
+                ))}
               </ul>
             </div>
 
@@ -62,43 +95,39 @@ export default function Footer() {
               <h3 className="text-[18px] font-extrabold tracking-[0.12em] uppercase">
                 QUICK LINKS
               </h3>
-
               <ul className="mt-8 space-y-3">
-                {[
-                  { to: "/", label: "HOME" },
-                  { to: "/menu", label: "MENU" },
-                  { to: "/about", label: "ABOUT US" },
-                  { to: "/contacts", label: "CONTACTS" },
-                ].map((l) => (
-                  <li key={l.to}>
-                    <NavLink
-                      to={l.to}
+                {quickLinks.map((item) => (
+                  <li key={item.label}>
+                    <button
+                      onClick={() => handleNavigate(item.path)}
                       className="text-[16px] sm:text-[17px] font-extrabold uppercase tracking-wide text-black/70 hover:text-[#d6362b] transition"
                     >
-                      {l.label}
-                    </NavLink>
+                      {item.label}
+                    </button>
                   </li>
                 ))}
               </ul>
             </div>
 
             {/* Opening Hours */}
-       <div className="lg:border-l lg:border-black/20 lg:pl-12
-                sm:col-span-2 md:col-span-1 lg:col-span-1">
-
+            <div
+              className="lg:border-l lg:border-black/20 lg:pl-12
+                sm:col-span-2 md:col-span-1 lg:col-span-1"
+            >
               <h3 className="text-[18px] font-extrabold tracking-[0.12em] uppercase">
                 OPENING HOURS
               </h3>
 
               <div className="mt-8 space-y-3 text-[16px] sm:text-[17px] text-black/70">
-                <p>
-                  Monday – Friday:{" "}
-                  <span className="text-[#d6362b] font-extrabold">8am – 4pm</span>
+                <p className="font-extrabold tracking-wide uppercase">
+                  Daily Hours
                 </p>
                 <p>
-                  Saturday:{" "}
-                  <span className="text-[#d6362b] font-extrabold">08:00 - 12:00 Uhr</span>
+                  <span className="text-[#d6362b] font-extrabold">
+                    11:00 AM – 9:00 PM
+                  </span>
                 </p>
+                <p>Open 7 days a week</p>
               </div>
 
               <div className="mt-8 flex items-center gap-3">
@@ -132,8 +161,9 @@ export default function Footer() {
           <div className="mt-12 h-px w-full bg-black/10" />
 
           <div className="py-10 text-center text-[15px] sm:text-[16px] text-black/70">
-            Copyright © 2023{" "}
-            <span className="text-[#d6362b] font-extrabold">Fazfood</span>. All rights reserved
+            Copyright © 2026{" "}
+            <span className="text-[#d6362b] font-extrabold">Zakoota</span>. All
+            rights reserved
           </div>
         </div>
       </div>

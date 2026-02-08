@@ -362,8 +362,8 @@ function RowActions({ onEdit, onDelete }) {
 }
 
 function Row({ name, density, onEdit, onDelete, icon }) {
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
-const iconUrl = icon ? `${API_URL}/uploads/icons/${icon}` : null; // remove /api
+  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+  const iconUrl = icon ? `${API_URL}/uploads/icons/${icon}` : null; // remove /api
 
   return (
     <>
@@ -371,16 +371,15 @@ const iconUrl = icon ? `${API_URL}/uploads/icons/${icon}` : null; // remove /api
       <div className="hidden md:grid grid-cols-[100px_1fr_180px_160px] px-8 py-6 border-t border-slate-100 items-center">
         <div>
           <div className="w-12 h-12 rounded-2xl bg-slate-50 grid place-items-center border border-slate-100 overflow-hidden">
-{iconUrl ? (
-  <img
-    src={iconUrl}
-    alt={name}
-    className="w-full h-full object-cover"
-  />
-) : (
-  <Layers size={18} className="text-slate-400" />
-)}
-
+            {iconUrl ? (
+              <img
+                src={iconUrl}
+                alt={name}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <Layers size={18} className="text-slate-400" />
+            )}
           </div>
         </div>
 
