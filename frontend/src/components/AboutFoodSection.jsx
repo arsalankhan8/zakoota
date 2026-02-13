@@ -1,7 +1,7 @@
 import { useRef, useState, useEffect } from "react";
 
 // ✅ Left image
-import aboutFood from "../assets/about-food-img.webp";
+import aboutFood from "../assets/about-food-2.png";
 
 // ✅ Icons
 import burgerIcon from "../assets/burger.svg";
@@ -20,7 +20,7 @@ function useInViewOnce(threshold = 0.3) {
       ([entry]) => {
         if (entry.isIntersecting) {
           setVisible(true);
-          observer.disconnect(); 
+          observer.disconnect();
         }
       },
       { threshold }
@@ -95,17 +95,13 @@ export default function AboutFoodSection() {
             </p>
 
             <h2 className="mt-4 text-[34px] leading-[1.05] sm:text-[55px] lg:text-[65px] font-black tracking-[1px] text-[#1f1f1f]">
-              WE MAKE THE BEST
+              NEW YORK STREET CHICKEN.
               <br className="hidden sm:block" />
-              BURGER IN YOUR TOWN
+              NOW IN AUSTRALIA.
             </h2>
 
             <p className="mt-5 sm:max-w-[90%] text-[18px] leading-[1.3em] text-[#464646]">
-              The mouth-watering aroma of sizzling burgers now fills the streets
-              of Birmingham thanks to the passionate pursuit of three brothers,
-              the British founders of Fazfood. After over 50 years of experience
-              in the culinary industry between them, they set out on a journey to
-              discover the ultimate burger.
+              Crispy. Juicy. No shortcuts. Inspired by the bold flavours of New York street vendors, we bring authentic fried chicken to Australia — served hot, fast, and packed with attitude.
             </p>
 
             {/* FEATURES */}

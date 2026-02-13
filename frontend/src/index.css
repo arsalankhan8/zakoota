@@ -114,3 +114,37 @@ html, body {
 .animate-spin-slow {
   animation: spin-slow 40s linear infinite;
 }
+
+
+
+/* marquee text best selling dishes  */
+
+.marquee-wrapper {
+  width: 100%;
+  overflow: hidden;
+}
+
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee 30s linear infinite;
+}
+
+.marquee-text {
+  white-space: nowrap;
+  font-size: clamp(65px, 8vw, 120px);
+  font-weight: 800;
+  letter-spacing: 2px;
+  color: transparent;
+  -webkit-text-stroke: 1px #cfcfcf;
+  padding-right: 60px;
+
+  /* 🔥 Important for stroke rendering */
+  backface-visibility: hidden;
+  transform: translateZ(0);
+}
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}

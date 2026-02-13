@@ -31,28 +31,19 @@ app.use(morgan("dev"));
 app.use(express.json({ limit: "2mb" }));
 app.use(express.urlencoded({ extended: true, limit: "2mb" }));
 
-const allowedOrigins = [
-  "https://zakoota.netlify.app", // live frontend
-  "http://localhost:5173", // Vite dev server
-];
+app.use(cors({
+  origin: "http://localhost:5173",
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+}));
 
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      // allow requests with no origin (like Postman)
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
-    credentials: true, // if using cookies or auth headers
-  }),
-);
+app.options("*", cors());
 
 // -----------------------------
 // Serve uploaded icons
 // -----------------------------
+
 app.use(
   "/api/uploads/icons",
   express.static(path.join(process.cwd(), "uploads/icons")),

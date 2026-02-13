@@ -6,52 +6,68 @@ import leafDownLeft from "../assets/decor-leaf-down-left.svg";
 import leafUpRight from "../assets/decor-leaf-up-right.svg";
 import yellowDown from "../assets/yellow-shape-down.svg";
 import yellowUp from "../assets/yellow-shape-up.svg";
-import chickenDish from "../assets/chicken-dish.png";
+
+// dish logo  and their item imgs
+import coleslawTextLogo from "../assets/coleslaw-text-logo.png"
+import coleslawItem from "../assets/coleslaw-item-img.png"
+
+import chickenTenderItem from "../assets/chicken-tender-item-img.png"
+import chickenTenderTextLogo from "../assets/chicken-tenders-text-logo.png"
+
+import sacusesItem from "../assets/sauces-item-img.png"
+import saucesTextLogo from "../assets/sauces-text-logo.png"
+
+import kebabRollsItem from "../assets/kebab-rolls-item-img.png"
+import kebabRollsTextLogo from "../assets/kebab-rolls-text-logo.png"
+
+import burgerItem from "../assets/burgers-item-img.png"
+import burgerTextLogo from "../assets/burger-text-logo.png"
+
+import southernFriesItem from "../assets/shouthern-fries-item-img.png"
+import southernFriesTextLogo from "../assets/southern-fries-text-logo.png"
 
 const items = [
     {
         id: 0,
-        title: "Ham",
-        dishImg:
-            "https://ap-fazfood.myshopify.com/cdn/shop/files/ham_8_1.png?v=1702000209",
-        textImg:
-            "https://ap-fazfood.myshopify.com/cdn/shop/files/Vector_3.png?v=1702000219",
+        title: "Southern Fries",
+        dishImg: southernFriesItem,
+        textImg: southernFriesTextLogo,
     },
     {
         id: 1,
-        title: "Burger",
-        dishImg:
-            "https://ap-fazfood.myshopify.com/cdn/shop/files/sthsn__Delicious_burger__on_isolated_pastel_color_easy_to_remo_e13479c1-55f6-4de5-b89d-81f7ea691f7f_1_1_2.png?v=1702000127",
-        textImg:
-            "https://ap-fazfood.myshopify.com/cdn/shop/files/Vector.svg?v=1701999696",
+        title: "Chicken Tenders",
+        dishImg: chickenTenderItem,
+        textImg: chickenTenderTextLogo
     },
     {
         id: 2,
-        title: "Chicken",
-        dishImg: chickenDish,
-        textImg:
-            "https://ap-fazfood.myshopify.com/cdn/shop/files/Vector_4.png?v=1702000267",
+        title: "Burgers", 
+        dishImg: burgerItem,
+        textImg: burgerTextLogo,
     },
     {
         id: 3,
-        title: "Fast Food",
-        dishImg:
-            "https://ap-fazfood.myshopify.com/cdn/shop/files/fast_food_set_1.png?v=1702003448",
-        textImg:
-            "https://ap-fazfood.myshopify.com/cdn/shop/files/Vector_6.png?v=1702003461",
+        title: "Kebab Rolls",
+        dishImg: kebabRollsItem,
+        textImg: kebabRollsTextLogo,
     },
     {
         id: 4,
-        title: "Pizza",
-        dishImg:
-            "https://ap-fazfood.myshopify.com/cdn/shop/files/hot_capricciosa_pizza_made_of_ham_and_cheese_ital_2023_01_20_03_55_27_utc_1.png?v=1702003477",
-        textImg:
-            "https://ap-fazfood.myshopify.com/cdn/shop/files/Vector_7.png?v=1702003488",
+        title: "Coleslaw",
+        dishImg: coleslawItem,
+        textImg: coleslawTextLogo,
+    },
+    {
+        id: 5,
+        title: "Sacuces",
+        dishImg: sacusesItem,
+        textImg: saucesTextLogo,
     },
 ];
+
+
 export default function FoodCategories() {
     const sliderRef = useRef(null);
-
     const [targetCols, setTargetCols] = useState(5); // will update by breakpoint
     const [canScroll, setCanScroll] = useState(false);
     const [atStart, setAtStart] = useState(true);
@@ -149,29 +165,29 @@ export default function FoodCategories() {
     }, []);
 
 
-  const [revealed, setRevealed] = useState(false);
+    const [revealed, setRevealed] = useState(false);
 
-  // reveal when section comes into view (once)
-  useEffect(() => {
-    const el = sliderRef.current;
-    if (!el) return;
+    // reveal when section comes into view (once)
+    useEffect(() => {
+        const el = sliderRef.current;
+        if (!el) return;
 
-    // observe the section wrapper (or slider itself)
-    const sectionEl = el.closest("section") || el;
+        // observe the section wrapper (or slider itself)
+        const sectionEl = el.closest("section") || el;
 
-    const io = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setRevealed(true);
-          io.disconnect();
-        }
-      },
-      { threshold: 0.3 }
-    );
+        const io = new IntersectionObserver(
+            ([entry]) => {
+                if (entry.isIntersecting) {
+                    setRevealed(true);
+                    io.disconnect();
+                }
+            },
+            { threshold: 0.3 }
+        );
 
-    io.observe(sectionEl);
-    return () => io.disconnect();
-  }, []);
+        io.observe(sectionEl);
+        return () => io.disconnect();
+    }, []);
 
     return (
         <section className="relative w-screen left-1/2 -translate-x-1/2 ">
@@ -227,19 +243,19 @@ export default function FoodCategories() {
                 ref={sliderRef}
                 className="flex overflow-x-auto no-scrollbar-x no-scrollbar scroll-smooth snap-x snap-mandatory"
             >
-{items.map((item, idx) => (
-  <CategoryCard
-    key={item.id}
-    item={item}
-    idx={idx}
-    revealed={revealed}
-    isFirst={idx === 0}
-    cols={cols}
-    isActive={idx === activeIdx}
-    onActivate={() => setActiveIdx(idx)}
-    onDeactivate={() => setActiveIdx(null)}
-  />
-))}
+                {items.map((item, idx) => (
+                    <CategoryCard
+                        key={item.id}
+                        item={item}
+                        idx={idx}
+                        revealed={revealed}
+                        isFirst={idx === 0}
+                        cols={cols}
+                        isActive={idx === activeIdx}
+                        onActivate={() => setActiveIdx(idx)}
+                        onDeactivate={() => setActiveIdx(null)}
+                    />
+                ))}
 
 
             </div>
@@ -248,41 +264,41 @@ export default function FoodCategories() {
 };
 
 function CategoryCard({
-  item,
-  idx,
-  revealed,
-  isFirst,
-  cols,
-  isActive,
-  onActivate,
-  onDeactivate,
+    item,
+    idx,
+    revealed,
+    isFirst,
+    cols,
+    isActive,
+    onActivate,
+    onDeactivate,
 }) {
-  const delay = 80 * idx; // stagger (ms)
-  const x = idx % 2 === 0 ? -26 : 26; // left/right
+    const delay = 80 * idx; // stagger (ms)
+    const x = idx % 2 === 0 ? -26 : 26; // left/right
 
-  return (
-    <div
-      onMouseEnter={onActivate}
-      onMouseLeave={onDeactivate}
-      onFocus={onActivate}
-      onBlur={onDeactivate}
-      className={[
-        "group relative h-[500px] shrink-0 snap-start cursor-pointer overflow-hidden",
-        "bg-[#F4F1EA] transition-colors duration-300",
-        isActive ? "bg-[#F7B33B]" : "hover:bg-[#F7B33B]",
-        "border-y border-black/20 border-r border-black/20",
-        isFirst ? "border-l border-black/20" : "border-l-0",
-        // start hidden until revealed
-        revealed ? "opacity-100" : "opacity-0",
-      ].join(" ")}
-style={{
-  flexBasis: `max(340px, ${100 / cols}vw)`,
-  animation: revealed
-    ? `cardReveal 700ms cubic-bezier(.2,.8,.2,1) ${delay}ms both`
-    : "none",
-  ["--x"]: `${x}px`,
-}}
-    >
+    return (
+        <div
+            onMouseEnter={onActivate}
+            onMouseLeave={onDeactivate}
+            onFocus={onActivate}
+            onBlur={onDeactivate}
+            className={[
+                "group relative h-[500px] shrink-0 snap-start cursor-pointer overflow-hidden",
+                "bg-[#F4F1EA] transition-colors duration-300",
+                isActive ? "bg-[#F7B33B]" : "hover:bg-[#F7B33B]",
+                "border-y border-black/20 border-r border-black/20",
+                isFirst ? "border-l border-black/20" : "border-l-0",
+                // start hidden until revealed
+                revealed ? "opacity-100" : "opacity-0",
+            ].join(" ")}
+            style={{
+                flexBasis: `max(340px, ${100 / cols}vw)`,
+                animation: revealed
+                    ? `cardReveal 700ms cubic-bezier(.2,.8,.2,1) ${delay}ms both`
+                    : "none",
+                ["--x"]: `${x}px`,
+            }}
+        >
             {/* TEXT IMAGE */}
             <div
                 className={[

@@ -1,7 +1,7 @@
 import React from 'react'
 import heroBg from "../assets/Home-Hero-Bg-Img.webp";
 import heroBurger from "../assets/Home-Hero-Right-Img.webp";
-import burgerText from "../assets/Burger-Text.svg";
+import authenticImg from "../assets/authentic-img.png";
 import rightArrow from "../assets/btn-arrow-right.svg"
 
 function LandingHeroSection() {
@@ -26,19 +26,15 @@ function LandingHeroSection() {
             style={{ animationDelay: "0.2s" }}
           >
             <div className="relative inline-block">
-              <div className="relative pt-10">
+              <div className="relative pt-16">
                 <img
-                  src={burgerText}
+                  src={authenticImg}
                   alt="Burger"
                   className="absolute sm:-top-24 top-[-30px] left-[100px] w-[180px] sm:w-[320px] lg:w-[300px] xl:w-[380px] pointer-events-none z-40"
                 />
 
                 <div className="relative z-10 text-white font-extrabold flex justify-center flex-col items-center leading-[0.9] tracking-tight">
-                  <div className="text-6xl sm:text-8xl lg:text-[95px] xl:text-[120px]">
-                    GRILLED
-                  </div>
-                  <div className="text-6xl sm:text-8xl lg:text-[95px] xl:text-[120px]">
-                    BEEF BURGER
+                  <div className="text-6xl sm:text-8xl lg:text-[95px] xl:text-[90px] text-center"> New York Street Food. Now in Australia.
                   </div>
                 </div>
               </div>
@@ -48,8 +44,7 @@ function LandingHeroSection() {
               className="mt-6 max-w-md text-[18px] sm:text-[20px] text-center w-[70%] text-white/70 opacity-0 animate-fade-up"
               style={{ animationDelay: "0.45s" }}
             >
-              Secret family recipes are the stuff of legends and Stack burger
-              blend is no exception.
+              Real NYC taste. Freshly made, every day.
             </p>
 
             <div
