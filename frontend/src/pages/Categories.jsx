@@ -391,7 +391,11 @@ function RowActions({ onEdit, onDelete }) {
 
 function Row({ name, density, onEdit, onDelete, icon }) {
   const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
-  const iconUrl = icon ? `${API_URL}/uploads/icons/${icon}` : null; // remove /api
+  const iconUrl = icon
+    ? icon.startsWith("http://") || icon.startsWith("https://")
+      ? icon
+      : `${API_URL}/uploads/icons/${icon}`
+    : null;
 
   return (
     <>

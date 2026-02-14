@@ -1,25 +1,16 @@
 import express from "express";
-import path from "path";
-import fs from "fs/promises";
 import Joi from "joi";
 import { requireAuth } from "../middlewares/auth.js";
 import Category from "../models/Category.js";
 import Item from "../models/Item.js";
 import { uploadCategoryIcon } from "../middlewares/uploadCategoryIcon.js";
+import {
+  uploadBuffer,
+  deleteByPublicId,
+  getPublicIdFromUrl,
+} from "../config/cloudinary.js";
 
 const router = express.Router();
-
-// Helper: delete icon file
-async function deleteFile(filename) {
-  if (!filename) return;
-  try {
-    const filePath = path.join(process.cwd(), "uploads/icons", filename);
-    await fs.unlink(filePath);
-    console.log("Deleted file:", filePath);
-  } catch (err) {
-    console.warn("Failed to delete file:", filename, err.message);
-  }
-}
 
 // Input validation schema
 const categorySchema = Joi.object({
@@ -31,20 +22,7 @@ const categorySchema = Joi.object({
 // GET ALL CATEGORIES
 router.get("/", async (req, res) => {
   try {
-    const dbName = Category.db.databaseName;
-    const collectionName = Category.collection.name;
-    console.log(`📊 Querying database: ${dbName}, collection: ${collectionName}`);
-    
-    const totalCount = await Category.countDocuments();
-    console.log(`📊 Total categories in collection: ${totalCount}`);
-    
     const categories = await Category.find().sort({ sortOrder: 1 });
-    console.log(`✅ Fetched ${categories.length} categories`);
-    
-    if (categories.length < totalCount) {
-      console.warn(`⚠️ Warning: Found ${totalCount} total categories but only ${categories.length} returned`);
-    }
-    
     res.json({ ok: true, data: categories });
   } catch (err) {
     console.error("Fetch categories error:", err);
@@ -52,10 +30,10 @@ router.get("/", async (req, res) => {
   }
 });
 
-// CREATE CATEGORY (Admin only)
+// CREATE CATEGORY (Admin only) – icon uploaded to Cloudinary, URL stored in DB
 router.post(
   "/",
-  requireAuth(true), // pass `true` for admin-only
+  requireAuth(true),
   uploadCategoryIcon.single("icon"),
   async (req, res) => {
     try {
@@ -65,13 +43,22 @@ router.post(
       const existing = await Category.findOne({ name: value.name });
       if (existing) return res.status(409).json({ ok: false, message: "Category already exists" });
 
-      const icon = req.file ? req.file.filename : null;
+      let icon = null;
+      if (req.file && req.file.buffer) {
+        const { url } = await uploadBuffer(req.file.buffer, req.file.mimetype, {
+          folder: "zakoota/icons",
+        });
+        icon = url;
+      }
 
       const category = await Category.create({ ...value, icon });
       res.json({ ok: true, data: category });
     } catch (err) {
       console.error("Create category error:", err);
-      res.status(500).json({ ok: false, message: "Failed to create category" });
+      res.status(500).json({
+        ok: false,
+        message: err.message || "Failed to create category",
+      });
     }
   }
 );
@@ -89,15 +76,29 @@ router.put(
       const category = await Category.findById(req.params.id);
       if (!category) return res.status(404).json({ ok: false, message: "Category not found" });
 
-      if (req.file && category.icon) await deleteFile(category.icon);
-
-      if (req.file) value.icon = req.file.filename;
+      // If new icon uploaded, delete old one from Cloudinary (if it was a Cloudinary URL) and set new URL
+      if (req.file && req.file.buffer) {
+        const oldIcon = category.icon;
+        const publicId = getPublicIdFromUrl(oldIcon);
+        if (publicId) {
+          deleteByPublicId(publicId).catch((e) =>
+            console.warn("Cloudinary delete old icon:", e.message)
+          );
+        }
+        const { url } = await uploadBuffer(req.file.buffer, req.file.mimetype, {
+          folder: "zakoota/icons",
+        });
+        value.icon = url;
+      }
 
       const updated = await Category.findByIdAndUpdate(req.params.id, value, { new: true });
       res.json({ ok: true, data: updated });
     } catch (err) {
       console.error("Update category error:", err);
-      res.status(500).json({ ok: false, message: "Failed to update category" });
+      res.status(500).json({
+        ok: false,
+        message: err.message || "Failed to update category",
+      });
     }
   }
 );
@@ -108,7 +109,14 @@ router.delete("/:id", requireAuth(true), async (req, res) => {
     const category = await Category.findById(req.params.id);
     if (!category) return res.status(404).json({ ok: false, message: "Category not found" });
 
-    if (category.icon) await deleteFile(category.icon);
+    if (category.icon) {
+      const publicId = getPublicIdFromUrl(category.icon);
+      if (publicId) {
+        deleteByPublicId(publicId).catch((e) =>
+          console.warn("Cloudinary delete category icon:", e.message)
+        );
+      }
+    }
 
     await Item.updateMany({ category: req.params.id }, { $set: { category: null } });
     await Category.findByIdAndDelete(req.params.id);

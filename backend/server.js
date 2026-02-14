@@ -40,23 +40,23 @@ app.use(cors({
 
 app.options("*", cors());
 
-// -----------------------------
-// Serve uploaded icons
-// -----------------------------
-
-app.use(
-  "/api/uploads/icons",
-  express.static(path.join(process.cwd(), "uploads/icons")),
-);
-
-// Serve other uploaded files normally
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
-
-// Routes
+// Routes (uploaded images/icons are served from Cloudinary URLs stored in DB)
 app.get("/api/health", (req, res) => res.json({ ok: true }));
 app.use("/api/auth", authRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/items", itemRoutes);
+
+// Global error handler (e.g. Multer limit/file type errors)
+app.use((err, req, res, next) => {
+  if (err.code === "LIMIT_FILE_SIZE") {
+    return res.status(400).json({ ok: false, message: "File too large" });
+  }
+  if (err.message && err.message.includes("Only image files")) {
+    return res.status(400).json({ ok: false, message: "Only image files are allowed" });
+  }
+  console.error("Unhandled error:", err);
+  res.status(500).json({ ok: false, message: err.message || "Internal server error" });
+});
 
 // Start server
 const port = process.env.PORT || 5000;

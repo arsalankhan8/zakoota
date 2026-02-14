@@ -36,7 +36,7 @@ export default function ItemForm({
   const [uploading, setUploading] = useState(false);
   const [localPreview, setLocalPreview] = useState("");
 
-  // this will store "xxx.png" for uploaded file (so we can delete it if cancelled)
+  // Store Cloudinary publicId for uploaded image (so we can delete it if cancelled)
   const [uploadedFileKey, setUploadedFileKey] = useState("");
 
   // if submit succeeded, don’t cleanup
@@ -70,19 +70,18 @@ export default function ItemForm({
   // -----------------------------
   // Delete uploaded file helper
   // -----------------------------
-  async function deleteUploadedFile(fileKey) {
-    if (!fileKey) return;
+  async function deleteUploadedFile(publicId) {
+    if (!publicId) return;
 
     try {
-      await fetch(`${API}/items/upload/${fileKey}`, {
+      await fetch(`${API}/items/upload?publicId=${encodeURIComponent(publicId)}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
     } catch (e) {
-      // silent (not critical)
-      console.warn("Failed to delete uploaded file:", fileKey);
+      console.warn("Failed to delete uploaded file:", publicId);
     }
   }
 
@@ -124,17 +123,16 @@ export default function ItemForm({
       const data = await res.json();
       if (!res.ok) throw new Error(data?.message || "Upload failed");
 
-      // expected backend:
-      // { imageUrl: "/uploads/items/xxx.png", fileKey: "xxx.png" }
+      // Backend returns { imageUrl (full Cloudinary URL), publicId, fileKey }
+      const imageUrl = data.imageUrl ?? data.data?.imageUrl;
+      const publicId = data.publicId ?? data.data?.publicId ?? data.fileKey ?? data.data?.fileKey;
 
-      // ✅ If user already uploaded an image in this session, delete previous orphan
       if (uploadedFileKey) {
         await deleteUploadedFile(uploadedFileKey);
       }
 
-      setUploadedFileKey(data.fileKey || "");
-      setUploadedFileKey(data.fileKey);
-      setForm((p) => ({ ...p, imageUrl: data.imageUrl }));
+      setUploadedFileKey(publicId || "");
+      setForm((p) => ({ ...p, imageUrl: imageUrl || "" }));
     } catch (err) {
       console.error(err);
       alert(err.message || "Image upload failed");
@@ -337,7 +335,12 @@ export default function ItemForm({
               {(localPreview || form.imageUrl) && (
                 <div className="rounded-2xl border border-slate-200 bg-white p-2">
                   <img
-                    src={localPreview || `${BASE}${form.imageUrl}`}
+                    src={
+                      localPreview ||
+                      (form.imageUrl.startsWith("http")
+                        ? form.imageUrl
+                        : `${BASE}${form.imageUrl}`)
+                    }
                     alt="Item preview"
                     className="w-full max-h-56 object-contain rounded-xl"
                   />

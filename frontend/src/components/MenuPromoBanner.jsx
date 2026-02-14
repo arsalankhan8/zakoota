@@ -4,7 +4,7 @@ import rightArrow from "../assets/btn-arrow-right.svg";
 
 export default function MenuPromoBanner() {
   return (
-    <section className="w-full bg-[#F4F1EA]">
+    <section className="w-full bg-[#F4F1EA] py-20">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 w-full">
         {/*  LEFT BANNER */}
         <div className="relative w-full overflow-hidden lg:h-[560px]">
@@ -39,7 +39,7 @@ export default function MenuPromoBanner() {
               </p>
 
               <p className="mt-1 text-[18px] sm:text-[20px] lg:text-[26px] font-bold text-[#d6362b]">
-                1-800-555-333
+                Phone Coming Soon
               </p>
 
               <button

@@ -63,7 +63,7 @@ export function DishCard({ item, onAddToCart }) {
 
   const img = item?.imageUrl;
   const name = item?.name || "BIG MAC";
-  const desc = clampText(item?.description, 90);
+  const desc = item?.description
 
   const API = import.meta.env.VITE_API_URL;
   const BASE = API?.endsWith("/api") ? API.slice(0, -4) : API;
@@ -97,7 +97,7 @@ export function DishCard({ item, onAddToCart }) {
       {/* Content */}
       <div className="relative z-10 px-7 pt-4 pb-6">
         <div className="flex items-start justify-between gap-3">
-          <h3 className="text-[24px] font-extrabold tracking-wide text-[#1b1b1b] uppercase">
+          <h3 className="text-[24px] font-extrabold leading-[1.2] tracking-[0.5px] text-[#1b1b1b]">
             {name}
           </h3>
 

@@ -31,9 +31,10 @@ export default function Footer() {
 
   const products = [
     { label: "BURGERS", path: "/menu" },
-    { label: "KING DELIGHT PRODUCTS", path: "/menu" },
-    { label: "CRISPY FLAVORS", path: "/menu" },
-    { label: "BREAKFAST PRODUCTS", path: "/menu" },
+    { label: "KEBAB ROLLS", path: "/menu" },
+    { label: "CRISPY CHICKEN TENDERS", path: "/menu" },
+    { label: "SAUCES", path: "/menu" },
+    { label: "COLESLAW", path: "/menu" },
   ];
 
   const quickLinks = [

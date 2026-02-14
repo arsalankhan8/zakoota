@@ -5,20 +5,21 @@ import fastDelivery from "../assets/fast-delivery.svg";
 const features = [
   {
     title: "QUALITY FOODS",
-    desc: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+    desc: "Freshly prepared, premium-quality chicken made with carefully selected ingredients for bold, authentic flavor.",
     icon: qualityFoods,
   },
   {
     title: "ORIGINAL RECIPES",
-    desc: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+    desc: "Inspired by New York street food, our signature recipes deliver crispy texture and unforgettable taste.",
     icon: originalRecipes,
   },
   {
     title: "FAST DELIVERY",
-    desc: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+    desc: "Hot, fresh, and delivered fast—so you can enjoy Zakoota’s flavors anytime, anywhere.",
     icon: fastDelivery,
   },
 ];
+
 
 export default function FeaturesSection() {
   return (

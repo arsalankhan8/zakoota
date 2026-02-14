@@ -60,7 +60,8 @@ export default function MenuByCategorySection({ onAddToCart }) {
 
   const getIcon = (icon) => {
     if (!icon) return null;
-
+    // Cloudinary URLs are stored as full URL; legacy was filename only
+    if (icon.startsWith("http://") || icon.startsWith("https://")) return icon;
     return `${BASE}/uploads/icons/${icon}`;
   };
 

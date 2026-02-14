@@ -1,10 +1,13 @@
 import express from "express";
-import fs from "fs/promises";
-import path from "path";
 import Joi from "joi";
 import { requireAuth } from "../middlewares/auth.js";
 import Item from "../models/Item.js";
 import { uploadItemImage } from "../middlewares/upload.js";
+import {
+  uploadBuffer,
+  deleteByPublicId,
+  getPublicIdFromUrl,
+} from "../config/cloudinary.js";
 
 const router = express.Router();
 
@@ -28,26 +31,15 @@ const itemSchema = Joi.object({
   externalUrl: Joi.string().allow("").optional(),
 });
 
-// Delete file helper
-async function deleteFile(filePath) {
+// DELETE uploaded image (Cloudinary) – call when user cancels without saving
+router.delete("/upload", requireAuth(true), async (req, res) => {
   try {
-    await fs.unlink(filePath);
-    console.log("Deleted file:", filePath);
-  } catch (err) {
-    if (err.code !== "ENOENT") console.warn("Failed to delete file:", filePath, err.message);
-  }
-}
-
-// DELETE uploaded image
-router.delete("/upload/:fileKey", requireAuth(true), async (req, res) => {
-  try {
-    const { fileKey } = req.params;
-    if (!fileKey || fileKey.includes("..") || fileKey.includes("/") || fileKey.includes("\\")) {
-      return res.status(400).json({ ok: false, message: "Invalid fileKey" });
+    const publicId = req.query.publicId;
+    if (!publicId || typeof publicId !== "string") {
+      return res.status(400).json({ ok: false, message: "Missing or invalid publicId" });
     }
-
-    const filePath = path.join(process.cwd(), "uploads/items", fileKey);
-    await deleteFile(filePath);
+    // Optional: ensure publicId is for our app (e.g. starts with zakoota/)
+    await deleteByPublicId(publicId);
     res.json({ ok: true });
   } catch (err) {
     console.error("Delete upload error:", err);
@@ -55,24 +47,45 @@ router.delete("/upload/:fileKey", requireAuth(true), async (req, res) => {
   }
 });
 
-// UPLOAD image
-router.post("/upload", requireAuth(true), uploadItemImage.single("image"), async (req, res) => {
-  try {
-    if (!req.file) return res.status(400).json({ ok: false, message: "No file uploaded" });
+// UPLOAD image to Cloudinary
+router.post(
+  "/upload",
+  requireAuth(true),
+  uploadItemImage.single("image"),
+  async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ ok: false, message: "No file uploaded" });
+      }
 
-    const fileKey = req.file.filename;
-    const imageUrl = `/uploads/items/${fileKey}`;
-    res.json({ ok: true, data: { fileKey, imageUrl } });
-  } catch (err) {
-    console.error("Upload image error:", err);
-    res.status(500).json({ ok: false, message: "Failed to upload file" });
+      const { url, publicId } = await uploadBuffer(req.file.buffer, req.file.mimetype, {
+        folder: "zakoota/items",
+      });
+
+      res.json({
+        ok: true,
+        data: {
+          imageUrl: url,
+          publicId,
+          fileKey: publicId, // legacy: frontend may still use fileKey for delete
+        },
+      });
+    } catch (err) {
+      console.error("Upload image error:", err);
+      res.status(500).json({
+        ok: false,
+        message: err.message || "Failed to upload file",
+      });
+    }
   }
-});
+);
 
 // GET public items
 router.get("/public", async (req, res) => {
   try {
-    const items = await Item.find({ isLive: true }).populate("category", "name icon").sort({ createdAt: -1 });
+    const items = await Item.find({ isLive: true })
+      .populate("category", "name icon")
+      .sort({ createdAt: -1 });
     res.json({ ok: true, data: items });
   } catch (err) {
     console.error("Fetch public items error:", err);
@@ -83,20 +96,10 @@ router.get("/public", async (req, res) => {
 // ADMIN CRUD
 router.get("/", requireAuth(true), async (req, res) => {
   try {
-    const dbName = Item.db.databaseName;
-    const collectionName = Item.collection.name;
-    console.log(`📊 Querying database: ${dbName}, collection: ${collectionName}`);
-    
     const totalCount = await Item.countDocuments();
-    console.log(`📊 Total items in collection: ${totalCount}`);
-    
-    const items = await Item.find().populate("category", "name icon").sort({ createdAt: -1 });
-    console.log(`✅ Fetched ${items.length} items for admin`);
-    
-    if (items.length < totalCount) {
-      console.warn(`⚠️ Warning: Found ${totalCount} total items but only ${items.length} returned (might be populate issue)`);
-    }
-    
+    const items = await Item.find()
+      .populate("category", "name icon")
+      .sort({ createdAt: -1 });
     res.json({ ok: true, data: items });
   } catch (err) {
     console.error("Fetch items error:", err);
@@ -109,10 +112,7 @@ router.post("/", requireAuth(true), async (req, res) => {
     const { error, value } = itemSchema.validate(req.body);
     if (error) return res.status(400).json({ ok: false, message: error.details[0].message });
 
-    // Normalize category: empty string to null
-    if (value.category === "") {
-      value.category = null;
-    }
+    if (value.category === "") value.category = null;
 
     const item = await Item.create(value);
     res.json({ ok: true, data: item });
@@ -130,19 +130,20 @@ router.put("/:id", requireAuth(true), async (req, res) => {
     const item = await Item.findById(req.params.id);
     if (!item) return res.status(404).json({ ok: false, message: "Item not found" });
 
-    // Normalize category: empty string to null
-    if (value.category === "") {
-      value.category = null;
-    }
+    if (value.category === "") value.category = null;
 
     const oldImg = item.imageUrl;
     const updated = await Item.findByIdAndUpdate(req.params.id, value, { new: true });
 
-    // Delete old image if changed
+    // Optionally delete old image from Cloudinary if it was replaced and is a Cloudinary URL
     const newImg = value.imageUrl;
-    if (oldImg && oldImg !== newImg && oldImg.startsWith("/uploads/items/")) {
-      const filePath = path.join(process.cwd(), "uploads/items", oldImg.split("/uploads/items/")[1]);
-      await deleteFile(filePath);
+    if (oldImg && oldImg !== newImg) {
+      const publicId = getPublicIdFromUrl(oldImg);
+      if (publicId) {
+        deleteByPublicId(publicId).catch((e) =>
+          console.warn("Cloudinary delete old image:", e.message)
+        );
+      }
     }
 
     res.json({ ok: true, data: updated });
@@ -159,9 +160,14 @@ router.delete("/:id", requireAuth(true), async (req, res) => {
 
     await Item.findByIdAndDelete(req.params.id);
 
-    if (item.imageUrl && item.imageUrl.startsWith("/uploads/items/")) {
-      const filePath = path.join(process.cwd(), "uploads/items", item.imageUrl.split("/uploads/items/")[1]);
-      await deleteFile(filePath);
+    // Delete image from Cloudinary if it's a Cloudinary URL
+    if (item.imageUrl) {
+      const publicId = getPublicIdFromUrl(item.imageUrl);
+      if (publicId) {
+        deleteByPublicId(publicId).catch((e) =>
+          console.warn("Cloudinary delete item image:", e.message)
+        );
+      }
     }
 
     res.json({ ok: true, message: "Item deleted" });
