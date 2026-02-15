@@ -2,8 +2,8 @@ import React, { useEffect, useRef, useState } from "react";
 
 // Replace these with your actual imports / paths
 import superDeliciousImg from "../assets/super-delicious-vertical.webp";
-import todaySpecialImg from "../assets/today-special.webp";
-import pizzaOfferImg from "../assets/super-delicious-pizza.webp";
+import todaySpecialImg from "../assets/promo-img.png";
+import chickenTender from "../assets/chicken-tenders-promo.png";
 
 function useInViewOnce(threshold = 0.3) {
   const ref = useRef(null);
@@ -19,7 +19,7 @@ function useInViewOnce(threshold = 0.3) {
           observer.disconnect();
         }
       },
-      { threshold }
+      { threshold },
     );
 
     observer.observe(ref.current);
@@ -37,7 +37,9 @@ function AnimatedCard({ children, className = "" }) {
       ref={ref}
       className={[
         "group relative transition-all duration-700 ease-out will-change-transform",
-        visible ? "opacity-100 translate-y-0 scale-100" : "opacity-0 translate-y-10 scale-[0.96]",
+        visible
+          ? "opacity-100 translate-y-0 scale-100"
+          : "opacity-0 translate-y-10 scale-[0.96]",
         className,
       ].join(" ")}
     >
@@ -64,18 +66,20 @@ function PromoBannersSecondSection() {
             />
 
             {/* Overlay content */}
-            <div className="pointer-events-none absolute inset-0 p-6 sm:p-8">
+            <div className="pointer-events-none absolute inset-0 p-4">
               <div className="max-w-[320px]">
-                <h3 className="text-4xl font-extrabold leading-[0.95] tracking-tight text-white sm:text-5xl">
+                <h3 className="text-[25px] sm:text-4xl font-extrabold leading-[0.95] tracking-tight text-white sm:text-5xl">
                   SUPER
                   <br />
                   DELICIOUS
                 </h3>
 
                 <div className="mt-6 text-white/90">
-                  <p className="text-xs font-semibold tracking-widest">CALL US NOW:</p>
+                  <p className="text-xs font-semibold tracking-widest">
+                    CALL US NOW:
+                  </p>
                   <p className="mt-1 text-2xl font-extrabold text-[#ff3b30]">
-                    1-800-555-333
+                    Coming Soon
                   </p>
                 </div>
               </div>
@@ -97,15 +101,13 @@ function PromoBannersSecondSection() {
               />
 
               {/* Text overlay */}
-              <div className="pointer-events-none absolute inset-0 flex items-center p-6 sm:p-8">
-                <h3 className="text-4xl font-extrabold leading-[1] tracking-tight text-white sm:text-5xl">
-                  TODAY
+              <div className="pointer-events-none absolute inset-0 flex items-center p-4">
+                <h3 className="text-[25px] sm:text-4xl font-extrabold leading-[1] tracking-tight text-white">
+                  ZAKOOTA
                   <br />
-                  SPECIAL
+                  SIGNATURE
                   <br />
-                  BURRITO
-                  <br />
-                  FOOD
+                  BURGER
                 </h3>
               </div>
             </AnimatedCard>
@@ -113,14 +115,25 @@ function PromoBannersSecondSection() {
             {/* Pizza image (no text) */}
             <AnimatedCard className="overflow-hidden rounded-3xl">
               <img
-                src={pizzaOfferImg}
-                alt="Pizza Offer"
+                src={chickenTender}
+                alt="Chicken Tender"
                 className="
                   h-full w-full object-cover
                   transition-transform duration-700 ease-out
                   group-hover:scale-110
                 "
               />
+
+              {/* Text overlay */}
+              <div className="pointer-events-none absolute inset-0 flex items-center p-4">
+                <h3 className="text-[25px] sm:text-4xl font-extrabold leading-[1] tracking-tight text-white">
+                  NYC STREET
+                  <br />
+                  CHICKEN
+                  <br />
+                  TENDERS 
+                </h3>
+              </div>
             </AnimatedCard>
           </div>
         </div>

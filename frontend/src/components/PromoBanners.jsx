@@ -107,7 +107,7 @@ export default function PromoBanners() {
         "
               >
                 {/* Title */}
-                <h3 className="font-extrabold uppercase leading-[0.95] tracking-wide text-[36px] sm:text-[42px] lg:text-[70px]">
+                <h3 className="font-extrabold uppercase leading-[0.95] tracking-wide text-[36px] sm:text-[42px] xl:text-[60px]">
                   <span className="block">{b.title[0]}</span>
                   <span className="block">{b.title[1]}</span>
                   <span className="block">{b.title[2]}</span>

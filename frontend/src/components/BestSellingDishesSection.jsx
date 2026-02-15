@@ -63,14 +63,15 @@ export function DishCard({ item, onAddToCart }) {
 
   const img = item?.imageUrl;
   const name = item?.name || "BIG MAC";
-  const desc = item?.description
+  const desc = item?.description;
+  const [expanded, setExpanded] = useState(false);
 
   const API = import.meta.env.VITE_API_URL;
   const BASE = API?.endsWith("/api") ? API.slice(0, -4) : API;
   const imgSrc = img ? (img.startsWith("http") ? img : `${BASE}${img}`) : "";
 
   return (
-    <div className="group relative overflow-hidden rounded-[28px] min-h-[-webkit-fill-available] bg-transparent">
+    <div className="group relative overflow-hidden rounded-[28px] bg-transparent flex flex-col h-full">
       {/* White panel */}
       <div
         className="
@@ -95,7 +96,7 @@ export function DishCard({ item, onAddToCart }) {
       </div>
 
       {/* Content */}
-      <div className="relative z-10 px-7 pt-4 pb-6">
+      <div className="relative z-10 px-7 pt-4 pb-6 flex flex-col flex-1">
         <div className="flex items-start justify-between gap-3">
           <h3 className="text-[24px] font-extrabold leading-[1.2] tracking-[0.5px] text-[#1b1b1b]">
             {name}
@@ -120,37 +121,54 @@ export function DishCard({ item, onAddToCart }) {
           <Stars value={5} />
         </div>
 
-        <p className="mt-5 text-[18px] leading-6 text-black/60">{desc}</p>
+        <p className="mt-5 text-[16px] leading-6 text-black/60">
+          {expanded ? desc : clampText(desc, 70)}
+        </p>
 
-        <div className="mt-7 flex items-end justify-between">
-          <div className="text-[22px] font-extrabold text-[#c81e1e]">
-            {item?.prices?.length ? (
-              <div className="flex flex-col gap-1">
-                {item.prices.map((p, i) => (
-                  <div
-                    key={i}
-                    className="text-[18px] font-extrabold text-[#c81e1e]"
-                  >
-                    {p.label}: {money(p.amount)}
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <span className="text-[18px] font-extrabold text-[#c81e1e]">
-                No price
-              </span>
-            )}
-          </div>
-
+        {desc?.length > 100 && (
           <button
             type="button"
-            onClick={() => onAddToCart?.(item)}
-            className="h-12 w-12 rounded-xl bg-[#0b7a3b] grid place-items-center active:scale-[0.98]"
-            aria-label="Add to cart"
+            onClick={() => setExpanded((v) => !v)}
+            className="mt-1 text-left text-sm font-semibold text-[#0b7a3b]"
           >
-            <ShoppingBasket className="h-5 w-5 text-white" />
+            {expanded ? "Show less" : "Read more"}
           </button>
+        )}
+<div className="mt-4 flex flex-col w-full gap-2">
+  {item?.prices?.length ? (
+    <div className="flex flex-wrap gap-2 text-sm font-semibold text-[#c81e1e]">
+      {item.prices.map((p, i) => (
+        <div
+          key={i}
+          className="flex justify-between  gap-2 items-center w-[max-content] bg-[#eeeeee] px-2 py-1 rounded-md"
+        >
+          <span className="text-black/70">{p.label}</span>
+          <span>{money(p.amount)}</span>
         </div>
+      ))}
+    </div>
+  ) : (
+    <span className="text-[18px] font-extrabold text-[#c81e1e]">
+      No price
+    </span>
+  )}
+
+  <button
+    type="button"
+    onClick={() => {
+      if (item?.externalUrl) {
+        window.open(item.externalUrl, "_blank", "noopener,noreferrer");
+      }
+    }}
+    className="h-10 w-10 rounded-lg bg-[#0b7a3b] grid place-items-center active:scale-[0.98] mt-2"
+    aria-label="Add to cart"
+  >
+    <ShoppingBasket className="h-5 w-5 text-white" />
+  </button>
+</div>
+
+
+
       </div>
     </div>
   );
@@ -158,7 +176,6 @@ export function DishCard({ item, onAddToCart }) {
 
 export default function BestSellingDishesSection({
   title = "BEST SELLING DISHES",
-  limit = 14,
   onAddToCart,
 }) {
   const [items, setItems] = useState([]);
@@ -174,7 +191,11 @@ export default function BestSellingDishesSection({
         setErr("");
 
         const res = await api.get("/items/public");
-        const data = Array.isArray(res.data?.data) ? res.data.data : (Array.isArray(res.data) ? res.data : []);
+        const data = Array.isArray(res.data?.data)
+          ? res.data.data
+          : Array.isArray(res.data)
+            ? res.data
+            : [];
 
         if (!alive) return;
         setItems(data);
@@ -193,9 +214,9 @@ export default function BestSellingDishesSection({
   }, []);
 
   const bestSellers = useMemo(() => {
-    const filtered = items.filter((x) => x?.isBestSeller);
-    return filtered.slice(0, limit);
-  }, [items, limit]);
+    // Filter items marked as best sellers
+    return items.filter((x) => x?.isBestSeller);
+  }, [items]);
 
   // ✅ responsive rules:
   // >= 1280 => 4 cards, arrows on sides
@@ -267,7 +288,7 @@ export default function BestSellingDishesSection({
         />
       </div>
 
-      <div className="relative mx-auto max-w-7xl sm:pt-16 pb-16 lg:pb-40">
+      <div className="relative mx-auto max-w-7xl sm:pt-16 pb-16 lg:pb-40 ">
         <h2 className="text-center text-4xl sm:text-6xl font-extrabold tracking-wide text-[#1b1b1b]">
           {title}
         </h2>

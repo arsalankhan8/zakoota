@@ -43,8 +43,8 @@ export default function AboutPageFoodSection() {
             ABOUT OUR FOOD
           </p>
 
-          <h2 className="relative text-[28px] text-center sm:text-[34px] md:text-[40px] lg:text-[55px] leading-[1.1] font-extrabold mb-6">
-            Best Burger Ideas & Traditions From The Whole World
+          <h2 className="relative text-[28px] text-center sm:text-[34px] md:text-[40px] lg:text-[50px] leading-[1.1] font-extrabold mb-6">
+Craving real NYC street food? Now in Australia, freshly made and served hot just for you!
             <img
               src={chipsImg}
               alt="Chips"
@@ -54,11 +54,11 @@ export default function AboutPageFoodSection() {
           </h2>
 
           <p className="text-[#464646] sm:w-[75%] relative text-[14px] sm:text-[15px] leading-[1.3em] mb-10 text-center">
-            The mouth-watering aroma of sizzling burgers now fills the streets
-            of Birmingham thanks to the passionate pursuit of three brothers,
-            the British founders of Faz food. After over 50 years of experience
-            in the culinary industry between them, they set out on a journey to
-            discover the ultimate burger.
+            NEW YORK STREET CHICKEN. NOW IN AUSTRALIA. Crispy. Juicy. No
+            shortcuts. Inspired by the bold flavours of New York street vendors,
+            we bring authentic fried chicken to Australia. Using natural,
+            best-quality products, we ensure the fastest delivery right to your
+            doorstep. A new look on the right food!
             <img
               src={pizaImg}
               alt="Pizza"

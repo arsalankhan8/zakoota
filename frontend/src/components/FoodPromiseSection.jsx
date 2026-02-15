@@ -30,7 +30,7 @@ function useInViewOnce(threshold = 0.3) {
 export default function FoodPromiseSection() {
   const stats = [
     { value: "23+", label: "YEARS EXPERIENCE" },
-    { value: "580+", label: "DIFFERENT BURGERS" },
+    { value: "80+", label: "FLAVOR COMBINATIONS" },
   ];
 
   const [sectionRef, visible] = useInViewOnce(0.3);
@@ -71,12 +71,11 @@ export default function FoodPromiseSection() {
             </p>
 
             <h2 className="mt-4 text-[34px] leading-[1.05] sm:text-[55px] lg:text-[65px] font-black tracking-[1px] text-[#1f1f1f]">
-              MADE RIGHT. MADE ESPECIALLY FOR YOU.
+            FRESH, BOLD, AND MADE JUST FOR YOU
             </h2>
 
             <p className="mt-5 sm:max-w-[85%] text-[18px] leading-[1.35] text-[#464646]">
-              Bold fiery flavours are our style. We&apos;re here to bring a new
-              sizzle to the face of fast-casual dining.
+             We bring the real taste of New York street food straight to your table in Australia. Every dish is freshly made, crispy, juicy, and packed with bold flavors — delivered hot, fast, and full of attitude.
             </p>
 
             {/* STATS */}

@@ -6,14 +6,17 @@ import FbIcon from "../assets/facebook-icon.svg?react";
 import IgIcon from "../assets/instagram-icon.svg?react";
 import YtIcon from "../assets/youtube-icon.svg?react";
 
-
 const SocialIcon = ({ href = "#", label, children, className = "" }) => (
-  <a href={href} aria-label={label} target="_blank" rel="noreferrer"
-    className={`inline-flex items-center justify-center transition ${className}`}>
+  <a
+    href={href}
+    aria-label={label}
+    target="_blank"
+    rel="noreferrer"
+    className={`inline-flex items-center justify-center transition ${className}`}
+  >
     {children}
   </a>
 );
-
 
 const navItem =
   "whitespace-nowrap text-[18px] max-[1380px]:text-[16px] font-extrabold tracking-wide max-[1380px]:tracking-[0.06em] uppercase transition hover:text-[#d6362b]";
@@ -21,7 +24,13 @@ const navItem =
 const navItemActive =
   "whitespace-nowrap text-[18px] max-[1380px]:text-[16px] font-extrabold tracking-wide max-[1380px]:tracking-[0.06em] uppercase text-[#d6362b]";
 
-const SocialImgIcon = ({ href = "#", label, src, tone = "light", className = "" }) => (
+const SocialImgIcon = ({
+  href = "#",
+  label,
+  src,
+  tone = "light",
+  className = "",
+}) => (
   <a
     href={href}
     aria-label={label}
@@ -39,7 +48,6 @@ const SocialImgIcon = ({ href = "#", label, src, tone = "light", className = "" 
     />
   </a>
 );
-
 
 const PhoneIcon = ({ className = "", size = 25, ...props }) => (
   <svg
@@ -74,39 +82,47 @@ export default function Navbar() {
           <div className="py-2 sm:py-0 sm:h-10 grid grid-cols-[1fr_auto_1fr] items-center gap-3 text-[16px] sm:text-[18px]">
             {/* Left */}
             <div className="justify-self-start lg:w-[320px] max-[1380px]:lg:w-[260px]">
-<a
-  href="https://www.google.com/maps/search/?api=1&query=4+61+Mabo+Boulevard+Bonner+ACT+2914"
-  target="_blank"
-  rel="noreferrer"
-  className="flex items-center gap-2 opacity-90 hover:opacity-100"
->
-  <MapPin size={18} />
-  Find a store
-</a>
-
-
+              <a
+                href="https://www.google.com/maps/search/?api=1&query=4+61+Mabo+Boulevard+Bonner+ACT+2914"
+                target="_blank"
+                rel="noreferrer"
+                className="flex items-center gap-2 opacity-90 hover:opacity-100"
+              >
+                <MapPin size={18} />
+                Find a store
+              </a>
             </div>
 
             {/* Center */}
-            <div className="justify-self-center opacity-90 text-center">
-              100% Secure delivery without contacting the courier
-            </div>
+         <div className="justify-self-center opacity-90 text-center">
+  Grab it yourself or get it delivered safely through Uber Eats
+</div>
+
 
             {/* Right */}
             <div className="flex items-center justify-end gap-4 text-white">
-              <SocialIcon label="Facebook" href="#" className="text-white hover:opacity-90">
+              <SocialIcon
+                label="Facebook"
+                href="#"
+                className="text-white hover:opacity-90"
+              >
                 <FbIcon className="h-[14px] w-auto" />
               </SocialIcon>
-              <SocialIcon label="Instagram" href="#" className="text-white hover:opacity-90">
+              <SocialIcon
+                label="Instagram"
+                href="#"
+                className="text-white hover:opacity-90"
+              >
                 <IgIcon className="h-[14px] w-auto" />
               </SocialIcon>
-              <SocialIcon label="YouTube" href="#" className="text-white hover:opacity-90">
+              <SocialIcon
+                label="YouTube"
+                href="#"
+                className="text-white hover:opacity-90"
+              >
                 <YtIcon className="h-[14px] w-auto" />
               </SocialIcon>
-
-
             </div>
-
           </div>
         </div>
       </div>
@@ -117,8 +133,6 @@ export default function Navbar() {
           <div className="h-[76px] sm:h-[86px] lg:h-[96px] flex items-center justify-between">
             {/* Left: Mobile Menu + Desktop Support */}
             <div className="flex items-center gap-3 lg:gap-4 lg:min-w-[320px] max-[1380px]:lg:min-w-[260px]">
-
-
               {/* ✅ Desktop support visible at lg+ */}
               <div className="hidden lg:flex items-center">
                 <div className="w-12 h-12 flex items-center">
@@ -140,34 +154,45 @@ export default function Navbar() {
             <nav className="hidden lg:flex flex-1 items-center justify-center gap-8 max-[1380px]:gap-6 2xl:gap-14">
               <NavLink
                 to="/menu"
-                className={({ isActive }) => (isActive ? navItemActive : navItem)}
+                className={({ isActive }) =>
+                  isActive ? navItemActive : navItem
+                }
               >
                 MENU
               </NavLink>
 
               <NavLink
                 to="/shop"
-                className={({ isActive }) => (isActive ? navItemActive : navItem)}
+                className={({ isActive }) =>
+                  isActive ? navItemActive : navItem
+                }
               >
                 SHOP
               </NavLink>
               <NavLink to="/">
-                <img src={logo} alt="Fazfood" className="w-[150px] mt-[-12px]  object-contain" />
+                <img
+                  src={logo}
+                  alt="Fazfood"
+                  className="w-[150px] mt-[-12px]  object-contain"
+                />
               </NavLink>
-
 
               <NavLink
                 to="/about"
-                className={({ isActive }) => (isActive ? navItemActive : navItem)}
+                className={({ isActive }) =>
+                  isActive ? navItemActive : navItem
+                }
               >
                 ABOUT US
               </NavLink>
 
               <NavLink
-                to="/contacts"
-                className={({ isActive }) => (isActive ? navItemActive : navItem)}
+                to="/contact"
+                className={({ isActive }) =>
+                  isActive ? navItemActive : navItem
+                }
               >
-                CONTACTS
+                CONTACT
               </NavLink>
             </nav>
 
@@ -180,17 +205,12 @@ export default function Navbar() {
                   className="w-[120px] object-contain flex-shrink-0"
                 />
               </NavLink>
-
             </div>
-
 
             {/* Right:  + Order */}
             {/* Right:  + Order */}
             <div className="flex items-center justify-end min-w-0 gap-2 sm:gap-3 lg:gap-6 max-[1180px]:lg:gap-3 lg:min-w-[320px] max-[1380px]:lg:min-w-[260px]">
-
               {/* ✅ Hamburger icon on right (mobile/tablet only) */}
-
-
 
               <button
                 className="
@@ -224,7 +244,6 @@ export default function Navbar() {
                 </span>
               </button>
 
-
               <button
                 className="lg:hidden inline-flex h-[42px] sm:h-[44px] w-[42px] sm:w-[44px] items-center justify-center rounded-xl border border-black/10 bg-white/50 hover:bg-white transition"
                 onClick={() => setOpen(true)}
@@ -233,32 +252,39 @@ export default function Navbar() {
                 <Menu size={22} />
               </button>
             </div>
-
           </div>
         </div>
       </div>
 
       {/* ─────────────── Mobile Drawer ─────────────── */}
       {/* ✅ Drawer active up to 1024px (lg breakpoint) */}
-      <div className={`lg:hidden ${open ? "pointer-events-auto" : "pointer-events-none"}`}>
+      <div
+        className={`lg:hidden ${open ? "pointer-events-auto" : "pointer-events-none"}`}
+      >
         {/* overlay */}
         <div
-          className={`fixed inset-0 z-40 bg-black/40 backdrop-blur-[2px] transition-opacity ${open ? "opacity-100" : "opacity-0"
-            }`}
+          className={`fixed inset-0 z-40 bg-black/40 backdrop-blur-[2px] transition-opacity ${
+            open ? "opacity-100" : "opacity-0"
+          }`}
           onClick={() => setOpen(false)}
         />
 
         {/* panel */}
         <div
-          className={`fixed z-50 top-0 left-0 h-full w-[86%] max-w-[360px] bg-[#f7f2e9] border-r border-black/10 shadow-2xl transition-transform duration-300 ${open ? "translate-x-0" : "-translate-x-full"
-            }`}
+          className={`fixed z-50 top-0 left-0 h-full w-[86%] max-w-[360px] bg-[#f7f2e9] border-r border-black/10 shadow-2xl transition-transform duration-300 ${
+            open ? "translate-x-0" : "-translate-x-full"
+          }`}
           role="dialog"
           aria-modal="true"
         >
           <div className="p-4">
             {/* header */}
             <div className="flex items-center justify-between">
-              <img src={logo} alt="Fazfood" className="w-[150px] object-contain" />
+              <img
+                src={logo}
+                alt="Fazfood"
+                className="w-[150px] object-contain"
+              />
               <button
                 className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-black/10 bg-white/50 hover:bg-white transition"
                 onClick={() => setOpen(false)}
@@ -297,7 +323,8 @@ export default function Navbar() {
                   key={item.to}
                   to={item.to}
                   className={({ isActive }) =>
-                    `rounded-2xl px-4 py-3 border border-black/10 bg-white/40 hover:bg-white/70 transition ${isActive ? "text-[#d6362b]" : "text-black/80"
+                    `rounded-2xl px-4 py-3 border border-black/10 bg-white/40 hover:bg-white/70 transition ${
+                      isActive ? "text-[#d6362b]" : "text-black/80"
                     } text-[16px] font-extrabold tracking-wide uppercase`
                   }
                 >
@@ -338,7 +365,6 @@ export default function Navbar() {
                   ORDER NOW
                 </span>
               </button>
-
             </div>
 
             {/* socials */}
@@ -348,16 +374,27 @@ export default function Navbar() {
               </span>
 
               <div className="flex items-center gap-4">
-                <SocialIcon label="Facebook" href="#" className="text-black/80 hover:opacity-80">
+                <SocialIcon
+                  label="Facebook"
+                  href="#"
+                  className="text-black/80 hover:opacity-80"
+                >
                   <FbIcon className="h-[14px] w-auto" />
                 </SocialIcon>
-                <SocialIcon label="Instagram" href="#" className="text-black/80 hover:opacity-80">
+                <SocialIcon
+                  label="Instagram"
+                  href="#"
+                  className="text-black/80 hover:opacity-80"
+                >
                   <IgIcon className="h-[14px] w-auto" />
                 </SocialIcon>
-                <SocialIcon label="YouTube" href="#" className="text-black/80 hover:opacity-80">
+                <SocialIcon
+                  label="YouTube"
+                  href="#"
+                  className="text-black/80 hover:opacity-80"
+                >
                   <YtIcon className="h-[14px] w-auto" />
                 </SocialIcon>
-
               </div>
             </div>
           </div>

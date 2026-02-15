@@ -82,7 +82,7 @@ export default function Footer() {
                   <li key={item.label}>
                     <button
                       onClick={() => handleNavigate(item.path)}
-                      className="text-[16px] sm:text-[17px] font-extrabold uppercase tracking-wide text-black/70 hover:text-[#d6362b] transition"
+                      className="text-[16px] text-left sm:text-[17px] font-extrabold uppercase tracking-wide text-black/70 hover:text-[#d6362b] transition"
                     >
                       {item.label}
                     </button>
