@@ -3,7 +3,7 @@ import React from "react";
 
 export default function Contact() {
   return (
-    <section className="w-full bg-[#f4f1ea] py-20">
+    <section className="w-full bg-[#f4f1ea] py-14 sm:py-20">
       <div className="max-w-7xl mx-auto px-6 lg:px-12 grid grid-cols-1 lg:grid-cols-2 gap-14">
         {/* Left: Text */}
         <div className="space-y-6">

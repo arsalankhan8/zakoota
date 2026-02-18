@@ -8,8 +8,6 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [err, setErr] = useState("");
   const [loading, setLoading] = useState(false);
-
-  // cooldown seconds left
   const [cooldown, setCooldown] = useState(0);
 
   useEffect(() => {
@@ -18,69 +16,75 @@ export default function Login() {
     return () => clearInterval(t);
   }, [cooldown]);
 
-async function onSubmit(e) {
-  e.preventDefault();
-  if (loading || cooldown > 0) return;
+  async function onSubmit(e) {
+    e.preventDefault();
+    if (loading || cooldown > 0) return;
 
-  setErr("");
-  setLoading(true);
+    setErr("");
+    setLoading(true);
 
-  try {
-    // Explicitly set Content-Type to ensure backend parses JSON correctly
-    const res = await api.post(
-      "/auth/login",
-      { username, password },
-      { headers: { "Content-Type": "application/json" } }
-    );
+    try {
+      const res = await api.post(
+        "/auth/login",
+        { username, password },
+        { headers: { "Content-Type": "application/json" } }
+      );
 
-    localStorage.setItem("token", res.data.token);
-    navigate("/admin");
-  } catch (e2) {
-    const status = e2?.response?.status;
+      localStorage.setItem("token", res.data.token);
+      navigate("/admin");
+    } catch (e2) {
+      const status = e2?.response?.status;
 
-    if (status === 429) {
-      setCooldown(30);
-      setErr("Too many attempts. Please wait 30 seconds and try again.");
-    } else if (status === 401) {
-      setErr("Invalid username or password."); // more descriptive
-    } else {
-      setErr(e2?.response?.data?.message || "Login failed");
+      if (status === 429) {
+        setCooldown(30);
+        setErr("Too many attempts. Please wait 30 seconds and try again.");
+      } else if (status === 401) {
+        setErr("Invalid username or password.");
+      } else {
+        setErr(e2?.response?.data?.message || "Login failed");
+      }
+    } finally {
+      setLoading(false);
     }
-  } finally {
-    setLoading(false);
   }
-}
 
   const disabled = loading || cooldown > 0;
 
   return (
-    <div className="relative min-h-screen grid place-items-center p-6 overflow-hidden">
-      {/* ...your background stuff... */}
+    <div className="relative min-h-screen grid place-items-center p-6 bg-[#f4f1ea]">
+      {/* Centered Card */}
+      <div className="relative w-full max-w-md bg-white rounded-[28px] border border-gray-200 p-8 shadow-[0_10px_30px_rgba(0,0,0,0.06)]">
+        {/* Header */}
+        <h2 className="text-3xl font-extrabold text-[#1b1b1b] text-center tracking-wide mb-6">
+          Go to Zakoota Dashboard
+        </h2>
+        <p className="text-sm text-black/60 text-center mb-6">
+          Login to access your dashboard and manage your content
+        </p>
 
-      <div className="relative w-full max-w-md bg-white rounded-3xl border p-8 shadow-sm">
-        {/* ...header... */}
-
-        <form onSubmit={onSubmit} className="space-y-4">
+        <form onSubmit={onSubmit} className="space-y-5">
+          {/* Username */}
           <div>
-            <label className="text-xs font-bold tracking-widest text-slate-400">
+            <label className="text-xs font-extrabold tracking-[0.5px] text-[#1b1b1b]/60">
               USERNAME
             </label>
             <input
-              className="mt-2 w-full rounded-xl border px-4 py-3 outline-none focus:ring-4 focus:ring-orange-100"
-              value={username}
+              className="mt-2 w-full rounded-[20px] border border-gray-300 px-4 py-3 text-black text-sm font-semibold outline-none focus:ring-4 focus:ring-orange-100 transition"
+           
               onChange={(e) => setUsername(e.target.value)}
               placeholder="Enter User Name"
               disabled={loading}
             />
           </div>
 
+          {/* Password */}
           <div>
-            <label className="text-xs font-bold tracking-widest text-slate-400">
+            <label className="text-xs font-extrabold tracking-[0.5px] text-[#1b1b1b]/60">
               PASSWORD
             </label>
             <input
               type="password"
-              className="mt-2 w-full rounded-xl border px-4 py-3 outline-none focus:ring-4 focus:ring-orange-100"
+              className="mt-2 w-full rounded-[20px] border border-gray-300 px-4 py-3 text-black text-sm font-semibold outline-none focus:ring-4 focus:ring-orange-100 transition"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
@@ -88,14 +92,18 @@ async function onSubmit(e) {
             />
           </div>
 
-          {err ? (
-            <div className="text-sm text-red-600 font-semibold py-2">{err}</div>
-          ) : null}
+          {/* Error */}
+          {err && (
+            <div className="text-sm text-red-600 font-semibold py-2 text-center">
+              {err}
+            </div>
+          )}
 
+          {/* Submit */}
           <button
             disabled={disabled}
             className={[
-              "w-full rounded-xl bg-orange-500 text-white font-bold py-3 shadow",
+              "w-full rounded-[20px] bg-[#0b7a3b] text-white font-extrabold py-3 shadow-lg text-sm transition-all",
               disabled ? "opacity-60 cursor-not-allowed" : "hover:opacity-95",
             ].join(" ")}
           >

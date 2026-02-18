@@ -23,7 +23,7 @@ import kebabRollsTextLogo from "../assets/kebab-rolls-text-logo.png"
 import burgerItem from "../assets/burgers-item-img.png"
 import burgerTextLogo from "../assets/burger-text-logo.png"
 
-import southernFriesItem from "../assets/shouthern-fries-item-img.png"
+import southernFriesItem from "../assets/southern-fries-item-img.png"
 import southernFriesTextLogo from "../assets/southern-fries-text-logo.png"
 
 const items = [

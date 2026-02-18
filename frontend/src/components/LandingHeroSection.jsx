@@ -17,7 +17,7 @@ function LandingHeroSection() {
       </div>
 
       {/* Content */}
-      <div className="relative mx-auto max-w-7xl px-6 min-h-[850px] sm:min-h-[1200px] lg:min-h-[800px] flex items-center">
+      <div className="relative mx-auto max-w-7xl px-6 min-h-[950px] sm:min-h-[1200px] lg:min-h-[800px] flex items-center">
         <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2 w-full">
 
           {/* LEFT */}

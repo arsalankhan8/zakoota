@@ -48,7 +48,7 @@ function useInViewOnce(threshold = 0.3) {
           observer.disconnect();
         }
       },
-      { threshold }
+      { threshold },
     );
 
     observer.observe(ref.current);
@@ -80,9 +80,11 @@ export default function PromoBanners() {
         group relative overflow-hidden
         min-h-[240px] sm:min-h-[280px] lg:min-h-[520px]
         transition-all duration-700 ease-out
-        ${visible
-                  ? "opacity-100 translate-y-0 scale-100"
-                  : "opacity-0 translate-y-10 scale-[0.96]"}
+        ${
+          visible
+            ? "opacity-100 translate-y-0 scale-100"
+            : "opacity-0 translate-y-10 scale-[0.96]"
+        }
       `}
             >
               {/* Background image */}
@@ -138,7 +140,7 @@ export default function PromoBanners() {
             inline-flex items-center gap-3
             bg-white text-black
             rounded-xl
-            px-6 py-3
+            px-4 py-3
             font-bold uppercase tracking-wider
             text-[16px] sm:text-[18px]
             transition
@@ -160,4 +162,4 @@ export default function PromoBanners() {
       </div>
     </section>
   );
-};
+}

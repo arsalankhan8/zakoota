@@ -134,41 +134,38 @@ export function DishCard({ item, onAddToCart }) {
             {expanded ? "Show less" : "Read more"}
           </button>
         )}
-<div className="mt-4 flex flex-col w-full gap-2">
-  {item?.prices?.length ? (
-    <div className="flex flex-wrap gap-2 text-sm font-semibold text-[#c81e1e]">
-      {item.prices.map((p, i) => (
-        <div
-          key={i}
-          className="flex justify-between  gap-2 items-center w-[max-content] bg-[#eeeeee] px-2 py-1 rounded-md"
-        >
-          <span className="text-black/70">{p.label}</span>
-          <span>{money(p.amount)}</span>
+        <div className="mt-4 flex flex-col w-full gap-2">
+          {item?.prices?.length ? (
+            <div className="flex flex-wrap gap-2 text-sm font-semibold text-[#c81e1e]">
+              {item.prices.map((p, i) => (
+                <div
+                  key={i}
+                  className="flex justify-between  gap-2 items-center w-[max-content] bg-[#eeeeee] px-2 py-1 rounded-md"
+                >
+                  <span className="text-black/70">{p.label}</span>
+                  <span>{money(p.amount)}</span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <span className="text-[18px] font-extrabold text-[#c81e1e]">
+              No price
+            </span>
+          )}
+
+          <button
+            type="button"
+            onClick={() => {
+              if (item?.externalUrl) {
+                window.open(item.externalUrl, "_blank", "noopener,noreferrer");
+              }
+            }}
+            className="h-10 w-10 rounded-lg bg-[#0b7a3b] grid place-items-center active:scale-[0.98] mt-2"
+            aria-label="Add to cart"
+          >
+            <ShoppingBasket className="h-5 w-5 text-white" />
+          </button>
         </div>
-      ))}
-    </div>
-  ) : (
-    <span className="text-[18px] font-extrabold text-[#c81e1e]">
-      No price
-    </span>
-  )}
-
-  <button
-    type="button"
-    onClick={() => {
-      if (item?.externalUrl) {
-        window.open(item.externalUrl, "_blank", "noopener,noreferrer");
-      }
-    }}
-    className="h-10 w-10 rounded-lg bg-[#0b7a3b] grid place-items-center active:scale-[0.98] mt-2"
-    aria-label="Add to cart"
-  >
-    <ShoppingBasket className="h-5 w-5 text-white" />
-  </button>
-</div>
-
-
-
       </div>
     </div>
   );
@@ -201,7 +198,9 @@ export default function BestSellingDishesSection({
         setItems(data);
       } catch (e) {
         if (!alive) return;
+
         setErr("Failed to load best sellers.");
+        setItems([]); // ✅ Clear old data
       } finally {
         if (!alive) return;
         setLoading(false);
@@ -294,27 +293,83 @@ export default function BestSellingDishesSection({
         </h2>
 
         <div className="mt-10 sm:mt-12 px-5">
-          {err ? (
-            <div className="mx-auto max-w-xl rounded-2xl bg-white/80 py-4 text-center text-sm text-red-600 shadow">
-              {err}
-            </div>
-          ) : null}
+          {err && (
+            <div className="mx-auto max-w-lg rounded-3xl bg-white shadow-xl px-6 py-8 text-center border border-red-100">
+              {/* Icon */}
+              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-red-50">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-7 w-7 text-red-500"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+              </div>
 
-          {loading ? (
+              {/* Title */}
+              <h3 className="text-lg font-bold text-gray-900">
+                Oops! Something went wrong
+              </h3>
+
+              {/* Message */}
+              <p className="mt-2 text-sm text-gray-600">
+                {err ||
+                  "We couldn’t load the dishes right now. Please try again later."}
+              </p>
+
+              {/* Action */}
+              <button
+                onClick={() => window.location.reload()}
+                className="mt-5 inline-flex items-center justify-center rounded-xl bg-red-500 px-5 py-2 text-sm font-semibold text-white hover:bg-red-600 transition"
+              >
+                Try Again
+              </button>
+            </div>
+          )}
+
+          {!err && loading ? (
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
               {Array.from({ length: 4 }).map((_, i) => (
                 <CardSkeleton key={i} />
               ))}
             </div>
-          ) : bestSellers.length === 0 ? (
-            <div className="mx-auto max-w-xl rounded-3xl bg-white/80 px-6 py-10 text-center shadow">
-              <p className="text-lg font-semibold text-[#1b1b1b]">
-                No best-selling dishes yet
-              </p>
-              <p className="mt-2 text-sm text-black/60">
-                Mark products as{" "}
-                <span className="font-semibold">isBestSeller</span> in admin and
-                they’ll appear here.
+          ) : !err && bestSellers.length === 0 ? (
+            <div className="mx-auto max-w-lg rounded-3xl bg-white shadow-xl px-7 py-9 text-center border border-gray-100">
+              {/* Icon */}
+              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-yellow-50">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-7 w-7 text-yellow-500"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+              </div>
+
+              {/* Title */}
+              <h3 className="text-lg font-bold text-gray-900">
+                No Best Sellers Yet
+              </h3>
+
+              {/* Message */}
+              <p className="mt-2 text-sm text-gray-600">
+                Mark your top dishes as{" "}
+                <span className="font-semibold">isBestSeller</span> in the admin
+                panel to display them here.
               </p>
             </div>
           ) : (
