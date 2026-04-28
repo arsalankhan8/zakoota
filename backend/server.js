@@ -24,45 +24,32 @@ const __dirname = path.dirname(__filename);
 app.use(
   helmet({
     crossOriginResourcePolicy: { policy: "cross-origin" },
-    crossOriginEmbedderPolicy: false, // optional: disable COEP if not needed
-  }),
+    crossOriginEmbedderPolicy: false,
+  })
 );
+
 app.use(morgan("dev"));
 app.use(express.json({ limit: "2mb" }));
 app.use(express.urlencoded({ extended: true, limit: "2mb" }));
 
-const allowedOrigins = [
-  "https://zakoota.netlify.app",
-  "http://localhost:5173"
-];
+// ✅ FIXED CORS (clean + working)
+const corsOptions = {
+  origin: ["https://zakoota.netlify.app", "http://localhost:5173"],
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+};
 
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      if (!origin) return callback(null, true);
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
 
-      if (allowedOrigins.some(o => origin.startsWith(o))) {
-        return callback(null, true);
-      }
-
-      return callback(new Error("Not allowed by CORS"));
-    },
-    credentials: true,
-    methods: ["GET","POST","PUT","PATCH","DELETE","OPTIONS"],
-    allowedHeaders: ["Content-Type","Authorization"],
-  })
-);
-
-
-app.options("*", cors());
-
-// Routes (uploaded images/icons are served from Cloudinary URLs stored in DB)
+// Routes
 app.get("/api/health", (req, res) => res.json({ ok: true }));
 app.use("/api/auth", authRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/items", itemRoutes);
 
-// Global error handler (e.g. Multer limit/file type errors)
+// Global error handler
 app.use((err, req, res, next) => {
   if (err.code === "LIMIT_FILE_SIZE") {
     return res.status(400).json({ ok: false, message: "File too large" });
